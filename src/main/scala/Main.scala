@@ -3,11 +3,12 @@ package com.github.rubyu.adupdate
 
 import scala.util.control.Exception._
 import java.io._
-import com.orangesignal.csv.Csv
+import com.orangesignal.csv.{QuotePolicy, Csv, CsvReader, CsvConfig}
 import com.orangesignal.csv.handlers.StringArrayListHandler
 import java.util
 
-import com.orangesignal.csv.{CsvReader, CsvConfig}
+import scala.collection.JavaConversions._
+import util.regex.Pattern
 
 object Main {
   def main(args: Array[String]) {
@@ -113,10 +114,20 @@ object Main {
 
 
 /**
+ * ・コメント、タグについては非対応。
+ * ・クォートはAnki（Pythonのcsvモジュールを使用。quoteChar='"', escapeChar=None, doubleQuote=True）に合わせている。
  *
- * 下記のAnkiの仕様を満たして、かつ簡易に実装できるようにするため、さらに
- * ・入出力にescape, quoteを使用しない。
- * という制約を加えている。
+ * todo 不意にタブや改行が紛れ込むことはありえるので、Ankiとの互換性を満たすのが重要
+ * ・#から始まる行をすべて削除
+ * ・ファイルの先頭がtags:なら、それをそのままスルー
+ * ・Csvとして、QuoteChar='"',escapeChar=None, doublequote=True　な処理する
+ * ・列数の制約はStrictに
+ * ・
+ *
+ * todo ignore～を試す
+ * todo escapeも`"`にすればdoublequote相当の動作になる？
+ *
+ * todo Ankiのexportの仕様も調べる。もしかしたらquote, escapeは考えなくてもいい？
  *
  *
  * http://ankisrs.net/docs/manual.html
@@ -137,38 +148,22 @@ object Main {
  * TextImporter.foreignNotes
  * ・列数が一致しない行は無視される
  */
+
 class TsvUpdater {
 
   val handler = new StringArrayListHandler
 
-  val readCfg = new CsvConfig()
-  readCfg.setSeparator('\t')
+  val readCfg = new CsvConfig('\t', '\"', '\"')
+  readCfg.setVariableColumns(true)
 
-  val writeCfg = new CsvConfig()
-  writeCfg.setSeparator('\t')
-
-  def row2str(arr: Array[String]) = arr map { s => s.replace("\t", "").replace("\n", "") } mkString "\t"
-
-  def line2row(input: Reader): Array[String] = Csv.load(input, readCfg, handler).get(0)
+  val writeCfg = new CsvConfig('\t', '\"', '\"')
+  writeCfg.setQuotePolicy(QuotePolicy.MINIMAL)
+  writeCfg.setVariableColumns(true)
 
   def update(input: InputStream, output: OutputStream)(f: Array[String] => Array[String]) {
-    val reader = new BufferedReader(new InputStreamReader(input, "utf-8"))
-    val writer = new PrintStream(new BufferedOutputStream(output), true, "utf-8")
-    val lines = Iterator.continually(reader.readLine()) takeWhile(_ != null) toList
-
-    for ((line, i) <- lines.zipWithIndex) {
-      if (0 == i && line.startsWith("tags:") ||
-        line.startsWith("#")) {
-        writer.print(line)
-      } else {
-        writer.print(row2str(f(line2row(new StringReader(line)))))
-      }
-
-      if (i < lines.size - 1) {
-        writer.print(System.lineSeparator)
-      }
-    }
-    writer.flush()
+    val results = new util.ArrayList[Array[String]]()
+    Csv.load(input, readCfg, handler) foreach { row => results.add(f(row)) }
+    Csv.save(results, output, writeCfg, handler)
   }
 }
 
