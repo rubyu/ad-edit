@@ -9,6 +9,7 @@ import java.util
 
 import scala.collection.JavaConversions._
 import util.regex.Pattern
+import java.nio.charset.StandardCharsets
 
 object Main {
   def main(args: Array[String]) {
@@ -114,21 +115,19 @@ object Main {
 
 
 /**
- * ・コメント、タグについては非対応。
- * ・クォートはAnki（Pythonのcsvモジュールを使用。quoteChar='"', escapeChar=None, doubleQuote=True）に合わせている。
+ * AnkiがExportするTSVファイルに変更を加えるクラス。
+ * ・ファイル中に出現するコメントはすべて予め除去される
+ * ・コメントの除去後、最初の行にタグが設定してある場合、それをそのまま出力する
+ * ・クォートの仕様はAnki（Pythonのcsvモジュールを使用。quoteChar='"', escapeChar=None, doubleQuote=True）に準拠
  *
- * todo 不意にタブや改行が紛れ込むことはありえるので、Ankiとの互換性を満たすのが重要
+ *
+ * メモ
+ *
+ * 不意にタブや改行が紛れ込むことはありえるので、Ankiとの互換性を満たすのが重要
  * ・#から始まる行をすべて削除
  * ・ファイルの先頭がtags:なら、それをそのままスルー
  * ・Csvとして、QuoteChar='"',escapeChar=None, doublequote=True　な処理する
  * ・列数の制約はStrictに
- * ・
- *
- * todo ignore～を試す
- * todo escapeも`"`にすればdoublequote相当の動作になる？
- *
- * todo Ankiのexportの仕様も調べる。もしかしたらquote, escapeは考えなくてもいい？
- *
  *
  * http://ankisrs.net/docs/manual.html
  * ・列数を最初の行で判定する
@@ -160,10 +159,34 @@ class TsvUpdater {
   writeCfg.setQuotePolicy(QuotePolicy.MINIMAL)
   writeCfg.setVariableColumns(true)
 
+  def parseTsv(reader: BufferedReader) = {
+    val rows = Iterator.continually(reader.readLine()) takeWhile(_ != null) withFilter(s => !s.startsWith("#")) toList
+
+    if (rows.size > 0 && rows(0).startsWith("tags:")) {
+      (rows(0), rows.drop(1))
+    } else {
+      ("", rows)
+    }
+  }
+
   def update(input: InputStream, output: OutputStream)(f: Array[String] => Array[String]) {
-    val results = new util.ArrayList[Array[String]]()
-    Csv.load(input, readCfg, handler) foreach { row => results.add(f(row)) }
-    Csv.save(results, output, writeCfg, handler)
+    val reader = new BufferedReader(new InputStreamReader(input))
+    val writer = new PrintWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8))
+    try {
+      val (tags, rows) = parseTsv(reader)
+      if (tags.nonEmpty) {
+        writer.println(tags)
+      }
+      if (rows.nonEmpty) {
+        val reader = new StringReader(rows.mkString("\n"))
+        val results = new util.ArrayList[Array[String]]()
+        Csv.load(reader, readCfg, handler) foreach { row => results.add(f(row)) }
+        Csv.save(results, writer, writeCfg, handler)
+      }
+    } finally {
+      reader.close()
+      writer.close()
+    }
   }
 }
 

@@ -37,11 +37,10 @@ class TsvUpdaterTest extends SpecificationWithJUnit {
         "").mkString(System.lineSeparator))
     }
 
-    "add line separator at last line when empty" in new scope {
+    "add no line separator at last line when empty" in new scope {
       updater.update(input(Array(
         "").mkString(System.lineSeparator)), output) { arr => arr }
       outputStr mustEqual(Array(
-        "",
         "").mkString(System.lineSeparator))
     }
 
@@ -50,6 +49,14 @@ class TsvUpdaterTest extends SpecificationWithJUnit {
         "a").mkString(System.lineSeparator)), output) { arr => arr }
       outputStr mustEqual(Array(
         "a",
+        "").mkString(System.lineSeparator))
+    }
+
+    "update row by given function when empty content" in new scope {
+      updater.update(input(Array(
+        "\t").mkString(System.lineSeparator)), output) { _ map { c => "1" } }
+      outputStr mustEqual(Array(
+        "1\t1",
         "").mkString(System.lineSeparator))
     }
 
@@ -120,6 +127,58 @@ class TsvUpdaterTest extends SpecificationWithJUnit {
         "1\t1",
         "1\t1\t1\t1",
         "") mkString(System.lineSeparator))
+    }
+
+    "ignore comment" in new scope {
+      updater.update(input(Array(
+        "#").mkString(System.lineSeparator)), output) { arr => arr }
+      outputStr mustEqual(Array(
+        "").mkString(System.lineSeparator))
+    }
+
+    "ignore succesive comments" in new scope {
+      updater.update(input(Array(
+        "#",
+        "#").mkString(System.lineSeparator)), output) { arr => arr }
+      outputStr mustEqual(Array(
+        "").mkString(System.lineSeparator))
+    }
+
+    "ignore not succesive comments" in new scope {
+      updater.update(input(Array(
+        "#",
+        "",
+        "#").mkString(System.lineSeparator)), output) { arr => arr }
+      outputStr mustEqual(Array(
+        "",
+        "").mkString(System.lineSeparator))
+    }
+
+    "bypass tags expression with no TSV elements" in new scope {
+      updater.update(input(Array(
+        "tags: a b").mkString(System.lineSeparator)), output) { arr => arr }
+      outputStr mustEqual(Array(
+        "tags: a b",
+        "").mkString(System.lineSeparator))
+    }
+
+    "bypass tags expression after comment" in new scope {
+      updater.update(input(Array(
+        "#",
+        "tags: a b").mkString(System.lineSeparator)), output) { arr => arr }
+      outputStr mustEqual(Array(
+        "tags: a b",
+        "").mkString(System.lineSeparator))
+    }
+
+    "bypass tags expression after comment" in new scope {
+      updater.update(input(Array(
+        "tags: a b",
+        "a").mkString(System.lineSeparator)), output) { arr => arr }
+      outputStr mustEqual(Array(
+        "tags: a b",
+        "a",
+        "").mkString(System.lineSeparator))
     }
   }
 }
