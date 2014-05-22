@@ -1,15 +1,12 @@
 
 package com.github.rubyu.adupdate
 
-import scala.util.control.Exception._
 import java.io._
-import com.orangesignal.csv.{QuotePolicy, Csv, CsvReader, CsvConfig}
-import com.orangesignal.csv.handlers.StringArrayListHandler
-import java.util
-
+import scala.util.control.Exception._
 import scala.collection.JavaConversions._
-import util.regex.Pattern
-import java.nio.charset.StandardCharsets
+
+import scala.sys.process._
+
 
 object Main {
   def main(args: Array[String]) {
@@ -114,86 +111,43 @@ object Main {
 }
 
 
-/**
- * AnkiがExportするTSVファイルに変更を加えるクラス。
- * ・ファイル中に出現するコメントはすべて予め除去される
- * ・コメントの除去後、最初の行にタグが設定してある場合、それをそのまま出力する
- * ・クォートの仕様はAnki（Pythonのcsvモジュールを使用。quoteChar='"', escapeChar=None, doubleQuote=True）に準拠
- *
- *
- * メモ
- *
- * 不意にタブや改行が紛れ込むことはありえるので、Ankiとの互換性を満たすのが重要
- * ・#から始まる行をすべて削除
- * ・ファイルの先頭がtags:なら、それをそのままスルー
- * ・Csvとして、QuoteChar='"',escapeChar=None, doublequote=True　な処理する
- * ・列数の制約はStrictに
- *
- * http://ankisrs.net/docs/manual.html
- * ・列数を最初の行で判定する
- * ・列セパレータを最初の行で判定する
- * ・escapeChar = None
- *
- * https://github.com/dae/anki/blob/master/anki/importing/csvfile.py
- * TextImporter.openFile
- * ・ファイルを開いて
- * ・ファイル先頭のBOM削除
- * ・全体から#で開始する行を除去
- * ・改行を\nに正規化
- * ・ファイルの先頭行が"tags:"から始まっていれば、以降のスペース切りの文字列をグローバルなタグに設定し、行を削除
- * ・デリミタを推定し、正規化（恐らく識別率は低い）
- * ・列数を取得
- *
- * TextImporter.foreignNotes
- * ・列数が一致しない行は無視される
- */
-
-class TsvUpdater {
-
-  val handler = new StringArrayListHandler
-
-  val readCfg = new CsvConfig('\t', '\"', '\"')
-  readCfg.setVariableColumns(true)
-
-  val writeCfg = new CsvConfig('\t', '\"', '\"')
-  writeCfg.setQuotePolicy(QuotePolicy.MINIMAL)
-  writeCfg.setVariableColumns(true)
-
-  def parseTsv(reader: BufferedReader) = {
-    val rows = Iterator.continually(reader.readLine()) takeWhile(_ != null) withFilter(s => !s.startsWith("#")) toList
-
-    if (rows.size > 0 && rows(0).startsWith("tags:")) {
-      (rows(0), rows.drop(1))
-    } else {
-      ("", rows)
-    }
-  }
-
-  def update(input: InputStream, output: OutputStream)(f: Array[String] => Array[String]) {
-    val reader = new BufferedReader(new InputStreamReader(input))
-    val writer = new PrintWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8))
-    try {
-      val (tags, rows) = parseTsv(reader)
-      if (tags.nonEmpty) {
-        writer.println(tags)
-      }
-      if (rows.nonEmpty) {
-        val reader = new StringReader(rows.mkString("\n"))
-        val results = new util.ArrayList[Array[String]]()
-        Csv.load(reader, readCfg, handler) foreach { row => results.add(f(row)) }
-        Csv.save(results, writer, writeCfg, handler)
-      }
-    } finally {
-      reader.close()
-      writer.close()
-    }
-  }
-}
-
-
 object OuterProcess {
-  //template, bindings
-  def call(commands: List[List[String]], source: Option[String], row: Option[Int]): String = {
-    ""
+
+  /**
+   *
+   * テンプレートのために用意する変数。
+   * field(n)
+   * input_file
+   * input_media_dir
+   * output_file
+   * output_media_dir
+   *
+   */
+  def applyTemplates(commands: List[List[String]]) = {
+
+  }
+
+  def build(commands: List[List[String]]): Option[ProcessBuilder] = {
+    if (commands.nonEmpty) {
+      build(commands.tail) match {
+        case Some(x) => Some(commands.head #| x)
+        case None => Some(commands.head)
+      }
+    } else {
+      None
+    }
+  }
+
+  /**
+   *
+   */
+  def call(commands: List[List[String]]): String = {
+
+    //todo apply templates
+
+    build(commands) match {
+      case Some(x) => x !!
+      case None => ""
+    }
   }
 }
