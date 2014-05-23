@@ -6,7 +6,9 @@ import scala.util.control.Exception._
 import scala.collection.JavaConversions._
 
 import scala.sys.process._
-
+import java.nio.charset.Charset
+import org.fusesource.scalate.{DefaultRenderContext, Binding, TemplateEngine}
+import com.sun.org.apache.bcel.internal.generic.ClassObserver
 
 object Main {
   def main(args: Array[String]) {
@@ -111,9 +113,14 @@ object Main {
 }
 
 
+class Foo(val value: String)
+
 object OuterProcess {
 
   /**
+   * commandToProcess
+   * connect
+   * execute
    *
    * テンプレートのために用意する変数。
    * field(n)
@@ -123,31 +130,44 @@ object OuterProcess {
    * output_media_dir
    *
    */
-  def applyTemplates(commands: List[List[String]]) = {
+  def applyTemplate = {
 
+
+    val scalate = new TemplateEngine
+    scalate.bindings = List(Binding("name", "com.github.rubyu.adupdate.Foo", true))
+    val result = new StringWriter
+    val context = new DefaultRenderContext("", scalate, new PrintWriter(result))
+    context.attributes("name") = new Foo("James")
+    val source = "hello ${ name.value }"
+    val template = scalate.compileSsp(source)
+    template.render(context)
+    result.toString
+    /*
+    val source = "hello ${name.value}"
+    val template = scalate.compileSsp(source)
+    scalate.layout(template.source, Map("name" -> new Foo("James")))
+    */
   }
 
-  def build(commands: List[List[String]]): Option[ProcessBuilder] = {
-    if (commands.nonEmpty) {
-      build(commands.tail) match {
-        case Some(x) => Some(commands.head #| x)
-        case None => Some(commands.head)
-      }
-    } else {
-      None
+  def connect(processes: List[ProcessBuilder]): ProcessBuilder = {
+    processes.size match {
+      case x if x > 1 => processes.head #| connect(processes.tail)
+      case x if x == 1 => processes.head
     }
   }
 
-  /**
-   *
-   */
-  def call(commands: List[List[String]]): String = {
-
-    //todo apply templates
-
-    build(commands) match {
-      case Some(x) => x !!
-      case None => ""
+  def execute(commands: List[List[String]], input: String = ""): Array[Byte] = {
+    if (commands.isEmpty) throw new IllegalArgumentException
+    //todo applyTemplates
+    val inputStream = new ByteArrayInputStream(input.getBytes(Charset.defaultCharset))
+    val outputStream = new ByteArrayOutputStream()
+    var plist = commands map { stringSeqToProcess(_) }
+    if (input.nonEmpty) {
+      plist = plist.head #< inputStream +: plist.tail
     }
+    (connect(plist) #> outputStream !)
+    outputStream.toByteArray
   }
 }
+
+
