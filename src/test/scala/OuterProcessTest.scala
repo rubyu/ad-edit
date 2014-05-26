@@ -2,21 +2,12 @@
 package com.github.rubyu.adupdate
 
 import org.specs2.mutable._
-import org.specs2.specification.Scope
-import java.io._
-import java.nio.charset.Charset
 
 
 /**
  * UTF-8でのテストのみ行う。
  */
 class OuterProcessTest extends SpecificationWithJUnit {
-
-  "OuterProcess.applyTemplate" should {
-    "rewrite template expression" in {
-      OuterProcess.applyTemplate mustEqual("")
-    }
-  }
 
   "OuterProcess.execute" should {
     "call windows programs" in {

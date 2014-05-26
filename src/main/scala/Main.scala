@@ -5,10 +5,6 @@ import java.io._
 import scala.util.control.Exception._
 import scala.collection.JavaConversions._
 
-import scala.sys.process._
-import java.nio.charset.Charset
-import org.fusesource.scalate.{DefaultRenderContext, Binding, TemplateEngine}
-import com.sun.org.apache.bcel.internal.generic.ClassObserver
 
 object Main {
   def main(args: Array[String]) {
@@ -111,63 +107,4 @@ object Main {
     System.exit(0)
   }
 }
-
-
-class Foo(val value: String)
-
-object OuterProcess {
-
-  /**
-   * commandToProcess
-   * connect
-   * execute
-   *
-   * テンプレートのために用意する変数。
-   * field(n)
-   * input_file
-   * input_media_dir
-   * output_file
-   * output_media_dir
-   *
-   */
-  def applyTemplate = {
-
-
-    val scalate = new TemplateEngine
-    scalate.bindings = List(Binding("name", "com.github.rubyu.adupdate.Foo", true))
-    val result = new StringWriter
-    val context = new DefaultRenderContext("", scalate, new PrintWriter(result))
-    context.attributes("name") = new Foo("James")
-    val source = "hello ${ name.value }"
-    val template = scalate.compileSsp(source)
-    template.render(context)
-    result.toString
-    /*
-    val source = "hello ${name.value}"
-    val template = scalate.compileSsp(source)
-    scalate.layout(template.source, Map("name" -> new Foo("James")))
-    */
-  }
-
-  def connect(processes: List[ProcessBuilder]): ProcessBuilder = {
-    processes.size match {
-      case x if x > 1 => processes.head #| connect(processes.tail)
-      case x if x == 1 => processes.head
-    }
-  }
-
-  def execute(commands: List[List[String]], input: String = ""): Array[Byte] = {
-    if (commands.isEmpty) throw new IllegalArgumentException
-    //todo applyTemplates
-    val inputStream = new ByteArrayInputStream(input.getBytes(Charset.defaultCharset))
-    val outputStream = new ByteArrayOutputStream()
-    var plist = commands map { stringSeqToProcess(_) }
-    if (input.nonEmpty) {
-      plist = plist.head #< inputStream +: plist.tail
-    }
-    (connect(plist) #> outputStream !)
-    outputStream.toByteArray
-  }
-}
-
 
