@@ -37,14 +37,15 @@ class TsvUpdaterTest extends SpecificationWithJUnit {
         "").mkString(System.lineSeparator))
     }
 
-    "add no line separator at last line when empty" in new scope {
+    "add a line separator when the input is empty" in new scope {
       updater.update(input(Array(
         "").mkString(System.lineSeparator)), output) { arr => arr }
       outputStr mustEqual(Array(
+        "",
         "").mkString(System.lineSeparator))
     }
 
-    "add line separator at last line when content exits" in new scope {
+    "add a line separator to the end when content exits" in new scope {
       updater.update(input(Array(
         "a").mkString(System.lineSeparator)), output) { arr => arr }
       outputStr mustEqual(Array(
@@ -133,6 +134,7 @@ class TsvUpdaterTest extends SpecificationWithJUnit {
       updater.update(input(Array(
         "#").mkString(System.lineSeparator)), output) { arr => arr }
       outputStr mustEqual(Array(
+        "",
         "").mkString(System.lineSeparator))
     }
 
@@ -141,6 +143,7 @@ class TsvUpdaterTest extends SpecificationWithJUnit {
         "#",
         "#").mkString(System.lineSeparator)), output) { arr => arr }
       outputStr mustEqual(Array(
+        "",
         "").mkString(System.lineSeparator))
     }
 
@@ -151,6 +154,7 @@ class TsvUpdaterTest extends SpecificationWithJUnit {
         "#").mkString(System.lineSeparator)), output) { arr => arr }
       outputStr mustEqual(Array(
         "",
+        "",
         "").mkString(System.lineSeparator))
     }
 
@@ -158,7 +162,7 @@ class TsvUpdaterTest extends SpecificationWithJUnit {
       updater.update(input(Array(
         "tags: a b").mkString(System.lineSeparator)), output) { arr => arr }
       outputStr mustEqual(Array(
-        "tags: a b",
+        "",
         "").mkString(System.lineSeparator))
     }
 
@@ -167,7 +171,7 @@ class TsvUpdaterTest extends SpecificationWithJUnit {
         "#",
         "tags: a b").mkString(System.lineSeparator)), output) { arr => arr }
       outputStr mustEqual(Array(
-        "tags: a b",
+        "",
         "").mkString(System.lineSeparator))
     }
 
@@ -176,7 +180,6 @@ class TsvUpdaterTest extends SpecificationWithJUnit {
         "tags: a b",
         "a").mkString(System.lineSeparator)), output) { arr => arr }
       outputStr mustEqual(Array(
-        "tags: a b",
         "a",
         "").mkString(System.lineSeparator))
     }

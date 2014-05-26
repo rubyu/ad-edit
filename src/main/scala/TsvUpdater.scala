@@ -55,30 +55,13 @@ class TsvUpdater {
   writeCfg.setQuotePolicy(QuotePolicy.MINIMAL)
   writeCfg.setVariableColumns(true)
 
-  def parseTsv(reader: BufferedReader) = {
-    val rows = Iterator.continually(reader.readLine()) takeWhile(_ != null) withFilter(s => !s.startsWith("#")) toList
-
-    if (rows.size > 0 && rows(0).startsWith("tags:")) {
-      (rows(0), rows.drop(1))
-    } else {
-      ("", rows)
-    }
-  }
-
   def update(input: InputStream, output: OutputStream)(f: Array[String] => Array[String]) {
-    val reader = new BufferedReader(new InputStreamReader(input))
+    val reader = new AnkiTsvBufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8))
     val writer = new PrintWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8))
     try {
-      val (tags, rows) = parseTsv(reader)
-      if (tags.nonEmpty) {
-        writer.println(tags)
-      }
-      if (rows.nonEmpty) {
-        val reader = new StringReader(rows.mkString("\n"))
-        val results = new util.ArrayList[Array[String]]()
-        Csv.load(reader, readCfg, handler) foreach { row => results.add(f(row)) }
-        Csv.save(results, writer, writeCfg, handler)
-      }
+      val results = new util.ArrayList[Array[String]]()
+      Csv.load(reader, readCfg, handler) foreach { row => results.add(f(row)) }
+      Csv.save(results, writer, writeCfg, handler)
     } finally {
       reader.close()
       writer.close()
