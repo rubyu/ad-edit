@@ -5,6 +5,9 @@ import org.specs2.mutable._
 
 
 class TemplateTest extends SpecificationWithJUnit {
+
+  sequential
+
   "Template.layout" should {
     "layout commands with given arguments" in {
       Template.layout(
