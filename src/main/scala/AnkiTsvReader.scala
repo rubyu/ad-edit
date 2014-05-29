@@ -25,7 +25,7 @@ class AnkiTsvReader(in: Reader) extends Iterator[Element] {
     }
   }
 
-  private var queue = mutable.Queue[Element]()
+  private val queue = mutable.Queue[Element]()
 
   private def parseNext(): Option[Element] = {
     if (queue.nonEmpty) {
@@ -42,7 +42,7 @@ class AnkiTsvReader(in: Reader) extends Iterator[Element] {
             parser.parse(p, text) match {
               case x if x.successful =>
                 x.get match {
-                  case elem: EOL => parseNext()
+                  case elem: EOL => _parseNext()
                   case elem: Comment => Some(elem)
                   case elem => firstLine = false; Some(elem)
                 }

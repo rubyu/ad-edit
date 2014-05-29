@@ -45,7 +45,7 @@ class AnkiTsvParser extends RegexParsers {
 
   //QUOTEに囲まれていること。前後にスペースによるパディングが存在してもよい。
   def quoted_field    = padding ~> QUOTE ~> quoted_value <~ QUOTE <~ padding
-  //(QUOTE以外、ダブルクォート、改行)からなる長さ0以上の文字列
+  //(QUOTE以外、ダブルクォート、改行)からなる長さ0以上の文字列。
   def quoted_value    = rep( escaped_quote | not_quote | EOL ) ^^ { _.mkString }
 
   //QUOTE, DELIM以外から開始し、DELIM以外が後続する、長さ0以上の文字列。
