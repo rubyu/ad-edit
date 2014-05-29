@@ -83,5 +83,37 @@ class AnkiTsvReaderTest extends SpecificationWithJUnit {
       val result = new AnkiTsvReader(new StringReader(""))
       result.toList mustEqual List()
     }
+
+  }
+  "AnkiTsvReader.lastSuccess" should {
+    "return None when input is empty" in {
+      val result = new AnkiTsvReader(new StringReader(""))
+      result.toList
+      result.lastSuccess mustEqual None
+    }
+
+    "return Some(1) when input is line" in {
+      val result = new AnkiTsvReader(new StringReader("a"))
+      result.toList
+      result.lastSuccess mustEqual Some(0)
+    }
+
+    "return Some(2) when input is line, \\n, line" in {
+      val result = new AnkiTsvReader(new StringReader("a\nb"))
+      result.toList
+      result.lastSuccess mustEqual Some(1)
+    }
+
+    "return None when input is broken-line" in {
+      val result = new AnkiTsvReader(new StringReader("\"b"))
+      result.toList
+      result.lastSuccess mustEqual None
+    }
+
+    "return Some(0) when input is line, broken-line" in {
+      val result = new AnkiTsvReader(new StringReader("a\n\"b"))
+      result.toList mustEqual List(Row(List("a")), InvalidString("\"b"))
+      result.lastSuccess mustEqual Some(0)
+    }
   }
 }

@@ -14,12 +14,17 @@ class AnkiTsvReader(in: Reader) extends Iterator[Element] {
 
   private var firstLine = true
 
+  private var lineNumber = -1
+  private var _lastSuccess: Option[Int] = None
+
+  def lastSuccess = _lastSuccess
+
   @tailrec
   private def readLine(buffer: ListBuffer[Char] = new ListBuffer[Char]): String = {
     in.read() match {
-      case -1 => buffer.mkString
+      case -1 => if (buffer.nonEmpty) lineNumber += 1; buffer.mkString
       case n => n.toChar match {
-        case '\n' => buffer += '\n'; buffer.mkString
+        case '\n' => lineNumber += 1; buffer += '\n'; buffer.mkString
         case c => buffer += c; readLine(buffer)
       }
     }
@@ -43,8 +48,10 @@ class AnkiTsvReader(in: Reader) extends Iterator[Element] {
               case x if x.successful =>
                 x.get match {
                   case elem: EOL => _parseNext()
-                  case elem: Comment => Some(elem)
-                  case elem => firstLine = false; Some(elem)
+                  case elem =>
+                    if (!elem.isInstanceOf[Comment]) firstLine = false
+                    _lastSuccess = Some(lineNumber)
+                    Some(elem)
                 }
               case x => _parseNext(text)
             }
