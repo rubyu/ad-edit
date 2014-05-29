@@ -23,7 +23,7 @@ object OuterProcess {
     if (input.nonEmpty) {
       plist = plist.head #< inputStream +: plist.tail
     }
-    (connect(plist) #> outputStream !)
+    connect(plist) #> outputStream ! ;
     outputStream.toByteArray
   }
 }
