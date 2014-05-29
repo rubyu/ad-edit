@@ -18,8 +18,9 @@ object AnkiTsvParser {
 class AnkiTsvParser extends RegexParsers {
   override def skipWhitespace = false
 
-  def first_line      = tags_res | comment_res | eol_res | row_res
-  def line            =            comment_res | eol_res | row_res
+  //入力にマッチし、余りがないこと。
+  def first_line      = phrase( ( tags_res | comment_res | row_res ) <~ EOL.? | eol_res )
+  def line            =            phrase( ( comment_res | row_res ) <~ EOL.? | eol_res )
 
   def tags_res        = tags    ^^ { AnkiTsvParser.result.Tags(_) }
   def comment_res     = comment ^^ { AnkiTsvParser.result.Comment(_) }

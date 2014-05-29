@@ -41,19 +41,11 @@ class AnkiTsvReader(in: Reader) extends Iterator[Element] {
             val p = if (firstLine) parser.first_line else parser.line
             parser.parse(p, text) match {
               case x if x.successful =>
-                text.drop(x.next.offset) match {
-                  case rest if rest.size == 2 && rest.endsWith("\r\n") => queue += EOL("\r\n")
-                  case rest if rest.size == 1 && rest.endsWith("\n") => queue += EOL("\n")
-                  case rest if rest.size == 0 =>
-                  case rest if rest.endsWith("\r\n") => queue += InvalidString(rest.dropRight(2)); queue += EOL("\r\n")
-                  case rest if rest.endsWith("\n") => queue += InvalidString(rest.dropRight(1)); queue += EOL("\n")
-                  case rest => queue += InvalidString(rest)
+                x.get match {
+                  case elem: EOL => parseNext()
+                  case elem: Comment => Some(elem)
+                  case elem => firstLine = false; Some(elem)
                 }
-                val elem = x.get
-                if (!elem.isInstanceOf[Comment] && !elem.isInstanceOf[EOL]) {
-                  firstLine = false
-                }
-                Some(elem)
               case x => _parseNext(text)
             }
         }

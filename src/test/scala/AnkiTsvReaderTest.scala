@@ -21,12 +21,12 @@ class AnkiTsvReaderTest extends SpecificationWithJUnit {
 
     "parse \\n" in {
       val result = new AnkiTsvReader(new StringReader("\n"))
-      result.toList mustEqual List(EOL("\n"))
+      result.toList mustEqual List()
     }
 
     "parse \\r\\n" in {
       val result = new AnkiTsvReader(new StringReader("\r\n"))
-      result.toList mustEqual List(EOL("\r\n"))
+      result.toList mustEqual List()
     }
 
     "parse comment" in {
@@ -56,17 +56,17 @@ class AnkiTsvReaderTest extends SpecificationWithJUnit {
 
     "parse raw-text, \\n, raw-text" in {
       val result = new AnkiTsvReader(new StringReader("a\nb"))
-      result.toList mustEqual List(Row(List("a")), EOL("\n"), Row(List("b")))
+      result.toList mustEqual List(Row(List("a")), Row(List("b")))
     }
 
     "parse raw-text, \n" in {
       val result = new AnkiTsvReader(new StringReader("a\n"))
-      result.toList mustEqual List(Row(List("a")), EOL("\n"))
+      result.toList mustEqual List(Row(List("a")))
     }
 
     "parse raw-text, \r\n" in {
       val result = new AnkiTsvReader(new StringReader("a\r\n"))
-      result.toList mustEqual List(Row(List("a")), EOL("\r\n"))
+      result.toList mustEqual List(Row(List("a")))
     }
 
     "parse un-closed quote-text as InvalidString" in {
@@ -76,7 +76,7 @@ class AnkiTsvReaderTest extends SpecificationWithJUnit {
 
     "parse a row that has un-closed quote-text as row, InvalidString" in {
       val result = new AnkiTsvReader(new StringReader("a\t\"b"))
-      result.toList mustEqual List(Row(List("a", "")), InvalidString("\"b"))
+      result.toList mustEqual List(InvalidString("a\t\"b"))
     }
 
     "return empty input when empty input is given" in {
