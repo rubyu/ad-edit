@@ -5,6 +5,7 @@ import java.io._
 import collection.mutable.ListBuffer
 import AnkiTsvParser.result._
 import collection.mutable
+import annotation.tailrec
 
 
 class AnkiTsvReader(in: Reader) extends Iterator[Element] {
@@ -13,18 +14,15 @@ class AnkiTsvReader(in: Reader) extends Iterator[Element] {
 
   private var firstLine = true
 
-  def readLine(): String = {
-    val buffer = new ListBuffer[Char]
-    while (true) {
-      in.read() match {
-        case -1 => return buffer.mkString
-        case n =>
-          val c = n.toChar
-          buffer += c
-          if (c == '\n') return buffer.mkString
+  @tailrec
+  private def readLine(buffer: ListBuffer[Char] = new ListBuffer[Char]): String = {
+    in.read() match {
+      case -1 => buffer.mkString
+      case n => n.toChar match {
+        case '\n' => buffer += '\n'; buffer.mkString
+        case c => buffer += c; readLine(buffer)
       }
     }
-  null
   }
 
   private var queue = mutable.Queue[Element]()
@@ -33,6 +31,7 @@ class AnkiTsvReader(in: Reader) extends Iterator[Element] {
     if (queue.nonEmpty) {
       Some(queue.dequeue())
     } else {
+      @tailrec
       def _parseNext(prev: String = ""): Option[Element] = {
         readLine() match {
           case line if line.isEmpty && prev.nonEmpty => Some(InvalidString(prev))
