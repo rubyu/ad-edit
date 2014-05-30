@@ -9,39 +9,29 @@ class TemplateTest extends SpecificationWithJUnit {
   sequential
 
   "Template.layout" should {
-    "layout commands with given arguments" in {
-      Template.layout(
-        List("${field(0)}, ${media.dir}"),
-        Array[String]("a"),
-        "media") mustEqual List("a, media")
+    "layout command with given arguments" in {
+      val template = new Template(List(List("${field(0)}, ${media.dir}")))
+      template.layout(List[String]("a"), "media") mustEqual List(List("a, media"))
     }
 
     "ignore accesses for out-of-index fields" in {
-      Template.layout(
-        List("${field(999)}"),
-        Array[String]("a"),
-        "") mustEqual List("")
+      val template = new Template(List(List("${field(999)}")))
+      template.layout(List[String]("a"), "") mustEqual List(List(""))
     }
 
     "escape $ by \\" in {
-      Template.layout(
-        List("\\${field(0)}"),
-        Array[String]("a"),
-        "") mustEqual List("${field(0)}")
+      val template = new Template(List(List("\\${field(0)}")))
+      template.layout(List[String]("a"), "") mustEqual List(List("${field(0)}"))
     }
 
     "no to escape normal characters by \\" in {
-      Template.layout(
-        List("\\a"),
-        Array[String]("a"),
-        "") mustEqual List("\\a")
+      val template = new Template(List(List("\\a")))
+      template.layout(List[String]("a"), "") mustEqual List(List("\\a"))
     }
 
     "not to escape markup characters by $$" in {
-      Template.layout(
-        List("<>, ${field(0)}, ${media.dir}"),
-        Array[String]("<>"),
-        "<>") mustEqual List("<>, <>, <>")
+      val template = new Template(List(List("<>, ${field(0)}, ${media.dir}")))
+      template.layout(List[String]("<>"), "<>") mustEqual List(List("<>, <>, <>"))
     }
   }
 }

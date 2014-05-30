@@ -6,24 +6,33 @@ import org.fusesource.scalate.{Binding, TemplateEngine}
 
 object Template {
 
-  class Field(private val fieldValues: Array[String]) {
-    def apply(index: Int) = if (index < fieldValues.size) fieldValues(index) else ""
+  class Field(val row: List[String]) {
+    def apply(index: Int) = if (index < row.size) row(index) else ""
   }
 
-  class MediaDir(private val mediaDir: String) {
+  class Media(val mediaDir: String) {
     def dir = mediaDir
   }
+}
 
-  def layout(commands: List[String], fieldValues: Array[String], mediaDir: String): List[String] = {
-    val engine = new TemplateEngine
-    engine.escapeMarkup = false //avoid escape for markup characters
-    val context = Map("field" -> new Field(fieldValues), "media" -> new MediaDir(mediaDir))
-    val bindings = List(Binding("field", "com.github.rubyu.adupdate.Template.Field"),
-      Binding("media", "com.github.rubyu.adupdate.Template.MediaDir"))
-    commands map { command =>
-      val template = engine.compileSsp(command, bindings)
-      engine.layout(template.source, context)
-    }
+class Template(commands: List[List[String]]) {
+
+  private val engine = new TemplateEngine
+  engine.escapeMarkup = false //avoid escape for markup characters
+
+  private val compiledCommands = compileCommands(commands)
+
+  private def compileCommands(commands: List[List[String]]) = {
+    val bindings = List(
+      Binding("field", "com.github.rubyu.adupdate.Template.Field"),
+      Binding("media", "com.github.rubyu.adupdate.Template.Media"))
+
+    commands map { _ map { engine.compileSsp(_, bindings) } }
+  }
+
+  def layout(row: List[String], mediaDir: String): List[List[String]] = {
+    val context = Map("field" -> new Template.Field(row), "media" -> new Template.Media(mediaDir))
+    compiledCommands map { _ map { t => engine.layout(t.source, context) } }
   }
 }
 
