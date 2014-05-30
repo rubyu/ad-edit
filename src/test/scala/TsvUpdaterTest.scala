@@ -17,171 +17,163 @@ class TsvUpdaterTest extends SpecificationWithJUnit {
   }
 
   "TsvUpdater.update" should {
-    "support unicode" in new scope {
-      updater.update(input(Array(
-        "あ").mkString(System.lineSeparator)), output) { arr => arr }
-      outputStr mustEqual(Array(
+    "output a character as is" in new scope {
+      updater.update(input(List(
+        "あ").mkString("\r\n")), output) { arr => arr }
+      outputStr mustEqual(List(
         "あ",
-        "") mkString(System.lineSeparator))
+        "") mkString("\r\n"))
     }
 
-    "do nothing when empty line" in new scope {
-      updater.update(input(Array(
+    "ignore empty lines" in new scope {
+      updater.update(input(List(
         "a",
         "",
-        "b").mkString(System.lineSeparator)), output) { arr => arr }
-      outputStr mustEqual(Array(
+        "b").mkString("\r\n")), output) { arr => arr }
+      outputStr mustEqual(List(
         "a",
-        "",
         "b",
-        "").mkString(System.lineSeparator))
+        "").mkString("\r\n"))
     }
 
-    "add a line separator when the input is empty" in new scope {
-      updater.update(input(Array(
-        "").mkString(System.lineSeparator)), output) { arr => arr }
-      outputStr mustEqual(Array(
-        "",
-        "").mkString(System.lineSeparator))
+    "output nothing when the input is empty" in new scope {
+      updater.update(input(List(
+        "").mkString("\r\n")), output) { arr => arr }
+      outputStr mustEqual(List(
+        "").mkString("\r\n"))
     }
 
-    "add a line separator to the end when content exits" in new scope {
-      updater.update(input(Array(
-        "a").mkString(System.lineSeparator)), output) { arr => arr }
-      outputStr mustEqual(Array(
+    "output a line separator at the end when content exits" in new scope {
+      updater.update(input(List(
+        "a").mkString("\r\n")), output) { arr => arr }
+      outputStr mustEqual(List(
         "a",
-        "").mkString(System.lineSeparator))
+        "").mkString("\r\n"))
     }
 
     "update row by given function when empty content" in new scope {
-      updater.update(input(Array(
-        "\t").mkString(System.lineSeparator)), output) { _ map { c => "1" } }
-      outputStr mustEqual(Array(
+      updater.update(input(List(
+        "\t").mkString("\r\n")), output) { _ map { c => "1" } }
+      outputStr mustEqual(List(
         "1\t1",
-        "").mkString(System.lineSeparator))
+        "").mkString("\r\n"))
     }
 
     "update row by given function when single line" in new scope {
-      updater.update(input(Array(
-        "a\tb").mkString(System.lineSeparator)), output) { _ map { c => "1" } }
-      outputStr mustEqual(Array(
+      updater.update(input(List(
+        "a\tb").mkString("\r\n")), output) { _ map { c => "1" } }
+      outputStr mustEqual(List(
         "1\t1",
-        "").mkString(System.lineSeparator))
+        "").mkString("\r\n"))
     }
 
     "update row by given function when multiple line" in new scope {
-      updater.update(input(Array(
+      updater.update(input(List(
         "a\tb",
-        "c\td").mkString(System.lineSeparator)), output) { _ map { c => "1" } }
-      outputStr mustEqual(Array(
+        "c\td").mkString("\r\n")), output) { _ map { c => "1" } }
+      outputStr mustEqual(List(
         "1\t1",
         "1\t1",
-        "").mkString(System.lineSeparator))
+        "").mkString("\r\n"))
     }
 
     "escape quotechar when content has lineSeparator" in new scope {
-      updater.update(input(Array(
+      updater.update(input(List(
         "\"a",
         "",
-        "b\"").mkString(System.lineSeparator)), output) { _ map { c => "1" } }
-      outputStr mustEqual(Array(
+        "b\"").mkString("\r\n")), output) { _ map { c => "1" } }
+      outputStr mustEqual(List(
         "1",
-        "") mkString(System.lineSeparator))
+        "") mkString("\r\n"))
     }
 
     "escape quotechar when content has tab" in new scope {
-      updater.update(input(Array(
+      updater.update(input(List(
         "\"a",
-        "\tb\"").mkString(System.lineSeparator)), output) { _ map { c => "1" } }
-      outputStr mustEqual(Array(
+        "\tb\"").mkString("\r\n")), output) { _ map { c => "1" } }
+      outputStr mustEqual(List(
         "1",
-        "") mkString(System.lineSeparator))
+        "") mkString("\r\n"))
     }
 
     "escape quotechar when content has tab and lineSeparator" in new scope {
-      updater.update(input(Array(
+      updater.update(input(List(
         "\"a",
         "",
         "\t",
         "",
-        "b\"").mkString(System.lineSeparator)), output) { _ map { c => "1" } }
-      outputStr mustEqual(Array(
+        "b\"").mkString("\r\n")), output) { _ map { c => "1" } }
+      outputStr mustEqual(List(
         "1",
-        "") mkString(System.lineSeparator))
+        "") mkString("\r\n"))
     }
 
     "escape quotechar" in new scope {
-      updater.update(input(Array(
-        "\"a\"\"b\"\tc").mkString(System.lineSeparator)), output) { _ map { c => c.replace("\"", "|") } }
-      outputStr mustEqual(Array(
+      updater.update(input(List(
+        "\"a\"\"b\"\tc").mkString("\r\n")), output) { _ map { c => c.replace("\"", "|") } }
+      outputStr mustEqual(List(
         "a|b\tc",
-        "") mkString(System.lineSeparator))
+        "") mkString("\r\n"))
     }
 
     "support variable columns" in new scope {
-      updater.update(input(Array(
+      updater.update(input(List(
         "a\tb\tc",
         "d\te",
-        "f\tg\th\ti").mkString(System.lineSeparator)), output) { _ map { c => "1" } }
-      outputStr mustEqual(Array(
+        "f\tg\th\ti").mkString("\r\n")), output) { _ map { c => "1" } }
+      outputStr mustEqual(List(
         "1\t1\t1",
         "1\t1",
         "1\t1\t1\t1",
-        "") mkString(System.lineSeparator))
+        "") mkString("\r\n"))
     }
 
     "ignore comment" in new scope {
-      updater.update(input(Array(
-        "#").mkString(System.lineSeparator)), output) { arr => arr }
-      outputStr mustEqual(Array(
-        "",
-        "").mkString(System.lineSeparator))
+      updater.update(input(List(
+        "#").mkString("\r\n")), output) { arr => arr }
+      outputStr mustEqual(List(
+        "").mkString("\r\n"))
     }
 
     "ignore succesive comments" in new scope {
-      updater.update(input(Array(
+      updater.update(input(List(
         "#",
-        "#").mkString(System.lineSeparator)), output) { arr => arr }
-      outputStr mustEqual(Array(
-        "",
-        "").mkString(System.lineSeparator))
+        "#").mkString("\r\n")), output) { arr => arr }
+      outputStr mustEqual(List(
+        "").mkString("\r\n"))
     }
 
     "ignore not succesive comments" in new scope {
-      updater.update(input(Array(
+      updater.update(input(List(
         "#",
         "",
-        "#").mkString(System.lineSeparator)), output) { arr => arr }
-      outputStr mustEqual(Array(
-        "",
-        "",
-        "").mkString(System.lineSeparator))
+        "#").mkString("\r\n")), output) { arr => arr }
+      outputStr mustEqual(List(
+        "").mkString("\r\n"))
     }
 
-    "bypass tags expression with no TSV elements" in new scope {
-      updater.update(input(Array(
-        "tags: a b").mkString(System.lineSeparator)), output) { arr => arr }
-      outputStr mustEqual(Array(
-        "",
-        "").mkString(System.lineSeparator))
+    "ignore tags expression" in new scope {
+      updater.update(input(List(
+        "tags: a b").mkString("\r\n")), output) { arr => arr }
+      outputStr mustEqual(List(
+        "").mkString("\r\n"))
     }
 
-    "bypass tags expression after comment" in new scope {
-      updater.update(input(Array(
+    "ignore tags expression after comment" in new scope {
+      updater.update(input(List(
         "#",
-        "tags: a b").mkString(System.lineSeparator)), output) { arr => arr }
-      outputStr mustEqual(Array(
-        "",
-        "").mkString(System.lineSeparator))
+        "tags: a b").mkString("\r\n")), output) { arr => arr }
+      outputStr mustEqual(List(
+        "").mkString("\r\n"))
     }
 
-    "bypass tags expression after comment" in new scope {
-      updater.update(input(Array(
+    "parse row appears after tags expression" in new scope {
+      updater.update(input(List(
         "tags: a b",
-        "a").mkString(System.lineSeparator)), output) { arr => arr }
-      outputStr mustEqual(Array(
+        "a").mkString("\r\n")), output) { arr => arr }
+      outputStr mustEqual(List(
         "a",
-        "").mkString(System.lineSeparator))
+        "").mkString("\r\n"))
     }
   }
 }
