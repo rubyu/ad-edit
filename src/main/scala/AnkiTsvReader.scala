@@ -17,6 +17,9 @@ class AnkiTsvReader(in: Reader) extends Iterator[Element] {
   private var lineNumber = -1
   private var _lastSuccess: Option[Int] = None
 
+  /**
+   * Elementが1回正常にパースされるまではNone,それ以降は最後にパースされた、0から始まる行番号を返す。
+   */
   def lastSuccess = _lastSuccess
 
   @tailrec
@@ -32,6 +35,12 @@ class AnkiTsvReader(in: Reader) extends Iterator[Element] {
 
   private val queue = mutable.Queue[Element]()
 
+  /**
+   * Elementを継承するTags、Comment、Row、InvalidStringのいずれかを返す。EOLは返さない。
+   * Commentを無視して、最初の行に対するパースにのみTagsが出現する可能性がある。
+   * パーサがTags, Comment, Rowを返した場合はそのまま返す。
+   * パースしきれない余りが残った場合はInvalidStringを返す。
+   */
   private def parseNext(): Option[Element] = {
     if (queue.nonEmpty) {
       Some(queue.dequeue())
