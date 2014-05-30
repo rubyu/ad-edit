@@ -26,8 +26,10 @@ class AnkiTsvWriter(out: Writer) {
         text
       }
     }.mkString("\t")
-    out.write(output)
-    out.write("\r\n")
-    out.flush()
+    if (output.size > 0) {
+      out.write(output)
+      out.write("\r\n")
+      out.flush()
+    }
   }
 }
