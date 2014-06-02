@@ -4,15 +4,19 @@ package com.github.rubyu.adupdate
 import java.io._
 import scala.sys.process._
 import java.nio.charset.StandardCharsets
+import annotation.tailrec
 
 
 object OuterProcess {
 
-  def connect(processes: List[ProcessBuilder]): ProcessBuilder = {
-    processes.size match {
-      case x if x > 1 => processes.head #| connect(processes.tail)
-      case x if x == 1 => processes.head
+  def connect(list: List[ProcessBuilder]): ProcessBuilder = {
+    @tailrec
+    def connect(p: ProcessBuilder, list: List[ProcessBuilder]): ProcessBuilder = {
+      if (list.isEmpty) p
+      else connect(p #| list.head, list.tail)
     }
+    if (list.isEmpty) throw new IllegalArgumentException
+    connect(list.head, list.tail)
   }
 
   def execute(commands: List[List[String]], input: String = ""): Array[Byte] = {
