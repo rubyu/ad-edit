@@ -3,7 +3,7 @@ package com.github.rubyu.adupdate
 
 import java.io._
 import scala.sys.process._
-import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets
 
 
 object OuterProcess {
@@ -17,7 +17,7 @@ object OuterProcess {
 
   def execute(commands: List[List[String]], input: String = ""): Array[Byte] = {
     if (commands.isEmpty) throw new IllegalArgumentException
-    val inputStream = new ByteArrayInputStream(input.getBytes(Charset.defaultCharset))
+    val inputStream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8))
     val outputStream = new ByteArrayOutputStream()
     var plist = commands map { stringSeqToProcess(_) }
     if (input.nonEmpty) {
