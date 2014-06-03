@@ -7,24 +7,70 @@ import scala.collection.JavaConversions._
 
 
 object Main {
+
+  /**
+   * 指定された列を削除する関数を返す。
+   * @param field 0以上の整数
+   * @return
+   */
+  def dropField(field: Int): List[String] => List[String] = { row =>
+    if (field < row.size) {
+      val buffer = row.toBuffer
+      buffer.remove(field)
+      buffer.toList
+    } else {
+      row
+    }
+  }
+
+  /**
+   * 指定された列に、f()が生成したデータを挿入する関数を返す。
+   * @param field 0以上の整数
+   * @return
+   */
+  def insertField(field: Int, f: List[String] => String): List[String] => List[String] = { row =>
+    val buffer = row.padTo(field, "").toBuffer
+    buffer.insert(field, f(row))
+    buffer.toList
+  }
+
+  /**
+   * 指定された列に、f()が生成したデータで上書きする関数を返す。
+   * @param field 0以上の整数
+   * @return
+   */
+  def updateField(field: Int, f: List[String] => String): List[String] => List[String] = { row =>
+    val buffer = row.padTo(field+1, "").toBuffer
+    buffer.update(field, f(row))
+    buffer.toList
+  }
+
+  trait ExecuteResult
+  case class ImageResult(value: Array[Byte], ext: String) extends ExecuteResult
+  case class AudioResult(value: Array[Byte], ext: String) extends ExecuteResult
+  case class StringResult(value: String) extends ExecuteResult
+
+
+  def executeCommands(template: Template, source: Option[Int]): List[String] => Array[Byte] = { row =>
+    val input = allCatch opt row(source.get) getOrElse("")
+    OuterProcess.execute(template.layout(row), input)
+  }
+
   def main(args: Array[String]) {
 
     /*
-  --exec (optional)  command ...
+    insert-field field
+    set-field field
+      field           0から始まるフィールド番号
+      //--row         {n, none}
+			//--file		    Input file. If - STDIN will be read.
+			--format	      拡張子
+			//--media-dir	    default is "collection.media"
+			//--test        --exec句がない場合は--exec-sourceの内容をそのまま出力する
+			--source	     {n, none} default is none //あるいはechoで手動で？
+			--exec
 
-	{{ field-n }}			//headerがあれば楽だが、リストとレシピは分離するべきなのでわかりづらい
-	{{ input-media-dir }}
-	{{ output-media-dir }}
-
-	--exec-source      n (optional)
-	--input            deck (required)
-	--output           deck (required)
-	--field            n (required)
-	--field-type	     { html, image, audio } (default is html)
-  --row		          n (optional)
-	--overwrite       (optional)
-	--update          (optional)
-	--test	          (optional)		//--exec句がない場合は--exec-sourceの内容をそのまま標準出力に書く
+		drop-field field
      */
 
     val option = new CliOption
