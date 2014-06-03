@@ -21,13 +21,14 @@ object OuterProcess {
 
   def execute(commands: List[List[String]], input: String = ""): Array[Byte] = {
     if (commands.isEmpty) throw new IllegalArgumentException
-    val inputStream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8))
     val outputStream = new ByteArrayOutputStream()
-    var plist = commands map { stringSeqToProcess(_) }
-    if (input.nonEmpty) {
-      plist = plist.head #< inputStream +: plist.tail
+    val plist = if (input.nonEmpty) {
+      val inputStream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8))
+      commands.head #< inputStream +: commands.tail.map { stringSeqToProcess(_) }
+    } else {
+      commands.map { stringSeqToProcess(_) }
     }
-    connect(plist) #> outputStream ! ;
+    connect(plist) #> outputStream !;
     outputStream.toByteArray
   }
 }
