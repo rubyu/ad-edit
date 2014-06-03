@@ -15,7 +15,7 @@ object Template {
   }
 }
 
-class Template(commands: List[List[String]]) {
+class Template(commands: List[List[String]], private val mediaDir: String) {
 
   private val engine = new TemplateEngine
   engine.escapeMarkup = false //avoid escape for markup characters
@@ -30,8 +30,10 @@ class Template(commands: List[List[String]]) {
     commands map { _ map { engine.compileSsp(_, bindings) } }
   }
 
-  def layout(row: List[String], mediaDir: String): List[List[String]] = {
-    val context = Map("field" -> new Template.Field(row), "media" -> new Template.Media(mediaDir))
+  def layout(row: List[String]): List[List[String]] = {
+    val context = Map(
+      "field" -> new Template.Field(row),
+      "media" -> new Template.Media(mediaDir))
     compiledCommands map { _ map { t => engine.layout(t.source, context) } }
   }
 }
