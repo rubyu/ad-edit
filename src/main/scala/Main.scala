@@ -148,6 +148,11 @@ object Main {
     }
   }
 
+  implicit class FormatString(self: String) {
+    def isSupportedFormat =
+      self.toLowerCase.matches("^(jpe?g|png|tif?f|gif|svg|wav|mp3|ogg|flac|mp4|swf|mov|mpe?g|mkv|m4a|html?|te?xt)$")
+  }
+
   implicit class ArrayByteMessageDigest(self: Array[Byte]) {
     def sha1 = {
       val md = MessageDigest.getInstance("SHA-1")
@@ -161,16 +166,12 @@ object Main {
     /*
     insert-field field
     set-field field
-      field           0から始まるフィールド番号
-      //--row         {n, none}
-			//--file		    Input file. If - STDIN will be read.
-			--format	      拡張子
-			//--media-dir	    default is "collection.media"
-			//--test        --exec句がない場合は--exec-sourceの内容をそのまま出力する
-			--source	     {n, none} default is none //あるいはechoで手動で？
-			--exec
-
+      field           対象のフィールド番号。
+      --format	      出力フォーマットの拡張子。
+			--source        ソースフィールド番号。指定されたフィールドの値が、--execの一番最初のコマンドに標準入力として与えられる。
+			--exec          コマンド。
 		drop-field field
+		  field           対象のフィールド番号
      */
 
     val option = new CliOption
