@@ -4,6 +4,7 @@ package com.github.rubyu.adupdate
 import org.kohsuke.args4j.{Option => Opt}
 import org.kohsuke.args4j.CmdLineParser
 import scala.collection.JavaConversions._
+import annotation.tailrec
 
 
 class CliOption {
@@ -86,15 +87,22 @@ class CliOption {
 
     new CmdLineParser(this) parseArgument(options)
 
-    def split(list: List[List[String]], commands: List[String]): List[List[String]] = {
-      commands indexOf "|" match {
-        case n if n > 0 => (commands take n) :: split(list, (commands drop n+1))
-        case  0 => split(list, (commands drop 1))
-        case -1 => if (commands isEmpty) list else commands :: list
+    //List[String]をパイプ文字(|)で分割して、List[List[String]]に変換する。
+    def split(commands: List[String]): List[List[String]] = {
+      @tailrec
+      def split(list: List[List[String]], commands: List[String]): List[List[String]] = {
+        commands.indexOf("|") match {
+          case -1 if commands.isEmpty => throw new IllegalArgumentException
+          case -1 => list :+ commands
+          case 0 => throw new IllegalArgumentException
+          case n => split(list :+ commands.take(n), commands.drop(n+1))
+        }
       }
+      split(List[List[String]](), commands)
     }
 
-    if (commands nonEmpty)
-      exec = split(List.empty[List[String]], commands)
+    if (commands nonEmpty) {
+      exec = split(commands)
+    }
   }
 }

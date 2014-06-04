@@ -68,31 +68,16 @@ class CliOptionTest extends SpecificationWithJUnit {
       option.exec mustEqual(List( List("--exec-source", "--input") ))
     }
 
-    "ignore pipe command on the first position" in new scope {
-      option.parseArgument(Array("--exec", "|", "a") toList)
-      option.exec mustEqual(List( List("a") ))
-    }
-    "ignore pipe command on the first position" in new scope {
-      option.parseArgument(Array("--exec", "|", "|", "a") toList)
-      option.exec mustEqual(List( List("a") ))
+    "throw IllegalArgumentException when pipe command on the first position" in new scope {
+      option.parseArgument(Array("--exec", "|", "a") toList) must throwA(new IllegalArgumentException)
     }
 
-    "ignore pipe command on the last position" in new scope {
-      option.parseArgument(Array("--exec", "a", "|") toList)
-      option.exec mustEqual(List( List("a") ))
-    }
-    "ignore pipe command on the last position" in new scope {
-      option.parseArgument(Array("--exec", "a", "|", "|") toList)
-      option.exec mustEqual(List( List("a") ))
+    "throw IllegalArgumentException when pipe command on the last position" in new scope {
+      option.parseArgument(Array("--exec", "a", "|") toList) must throwA(new IllegalArgumentException)
     }
 
-    "ignore succesive pipe commands" in new scope {
-      option.parseArgument(Array("--exec", "|", "|") toList)
-      option.exec mustEqual(List.empty[List[String]])
-    }
-    "ignore succesive pipe commands" in new scope {
-      option.parseArgument(Array("--exec", "a", "|", "|", "b") toList)
-      option.exec mustEqual(List( List("a"), List("b") ))
+    "throw IllegalArgumentException when succesive pipe commands" in new scope {
+      option.parseArgument(Array("--exec", "a", "|", "|", "b") toList) must throwA(new IllegalArgumentException)
     }
 
     "have multiple commands" in new scope {
