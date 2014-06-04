@@ -3,7 +3,8 @@ package com.github.rubyu.adupdate
 
 import java.io._
 import scala.util.control.Exception._
-import scala.collection.JavaConversions._
+import java.nio.charset.StandardCharsets
+import java.security.MessageDigest
 
 
 object Main {
@@ -45,15 +46,114 @@ object Main {
     buffer.toList
   }
 
-  trait ExecuteResult
-  case class ImageResult(value: Array[Byte], ext: String) extends ExecuteResult
-  case class AudioResult(value: Array[Byte], ext: String) extends ExecuteResult
-  case class StringResult(value: String) extends ExecuteResult
+  trait ExecuteResult {
+    def html: String
+  }
 
+  trait BinaryResult extends ExecuteResult {
+    val value: Array[Byte]
+    val ext: String
+    lazy val name = s"${value.sha1}.$ext"
+
+    def save(parent: File) {
+      val file = new File(parent, name)
+      if (!file.exists()) {
+        val stream = new BufferedOutputStream(new FileOutputStream(file))
+        try {
+          stream.write(value)
+        } finally {
+          stream.close()
+        }
+      }
+    }
+  }
+
+  case class ImageResult(value: Array[Byte], ext: String) extends BinaryResult {
+    def html = s"<img src=$name>"
+  }
+
+  case class AudioResult(value: Array[Byte], ext: String) extends BinaryResult {
+    def html = s"[sound:$name]"
+  }
+
+  case class PlainTextResult(value: String) extends ExecuteResult {
+    def escape(text: String) = {
+      val s = new StringBuilder
+      val len = text.length
+      var pos = 0
+      while (pos < len) {
+        text.charAt(pos) match {
+          case '<' => s.append("&lt;")
+          case '>' => s.append("&gt;")
+          case '&' => s.append("&amp;")
+          case '"' => s.append("&quot;")
+          case '\'' => s.append("&#39;")
+          case '\n' => s.append('\n')
+          case '\r' => s.append('\r')
+          case '\t' => s.append('\t')
+          case c => if (c >= ' ') s.append(c)
+        }
+        pos += 1
+      }
+      s.toString
+    }
+    def html = escape(value)
+  }
+
+  case class HTMLResult(value: String) extends ExecuteResult {
+    def html = value
+  }
+
+  case object EmptyResult extends ExecuteResult {
+    def html = ""
+  }
 
   def executeCommands(template: Template, source: Option[Int]): List[String] => Array[Byte] = { row =>
     val input = allCatch opt row(source.get) getOrElse("")
     OuterProcess.execute(template.layout(row), input)
+  }
+
+  def process(f: List[String] => ExecuteResult, mediaDir: File): List[String] => String = { row =>
+    f(row) match {
+      case x: BinaryResult => x.save(mediaDir); x.html
+      case x => x.html
+    }
+  }
+
+  def typed(f: List[String] => Array[Byte], mimeType: String): List[String] => ExecuteResult = { row =>
+    f(row) match {
+      case x if x.isEmpty => EmptyResult
+      case x =>
+        mimeType match {
+          case "jpg" | "jpeg" => ImageResult(x, "jpg")
+          case "png" => ImageResult(x, "png")
+          case "tif" | "tiff" => ImageResult(x, "tif")
+          case "gif" => ImageResult(x, "gif")
+          case "svg" => ImageResult(x, "svg")
+
+          case "wav" => AudioResult(x, "wav")
+          case "mp3" => AudioResult(x, "mp3")
+          case "ogg" => AudioResult(x, "ogg")
+          case "flac" => AudioResult(x, "flac")
+          case "mp4" => AudioResult(x, "mp4")
+          case "swf" => AudioResult(x, "swf")
+          case "mov" => AudioResult(x, "mov")
+          case "mpg"| "mpeg" => AudioResult(x, "mpeg")
+          case "mkv" => AudioResult(x, "mkv")
+          case "m4a" => AudioResult(x, "m4a")
+
+          case "html" | "htm" => HTMLResult(new String(x, StandardCharsets.UTF_8))
+          case "text" | "txt" => PlainTextResult(new String(x, StandardCharsets.UTF_8))
+        }
+    }
+  }
+
+  implicit class ArrayByteMessageDigest(self: Array[Byte]) {
+    def sha1 = {
+      val md = MessageDigest.getInstance("SHA-1")
+      md.update(self)
+      md.digest.map { "%02x".format(_) } mkString
+    }
   }
 
   def main(args: Array[String]) {
