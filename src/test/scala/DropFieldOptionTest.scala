@@ -14,7 +14,7 @@ class DropFieldOptionTest extends SpecificationWithJUnit {
 
   "DropFieldOption.field" should {
     "throw an exception" in new scope {
-      option.parseArgument(List[String]("-1")).field must throwA[IllegalArgumentException]
+      option.parseArgument(List[String]("-1")).field must throwA[CmdLineException]
     }
 
     "return Int" in new scope {
