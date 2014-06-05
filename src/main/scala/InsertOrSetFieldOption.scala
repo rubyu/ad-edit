@@ -86,8 +86,8 @@ class InsertOrSetFieldOption {
    */
   def parseArgument(args: List[String]) = {
     val (before, after) = args indexOf "--exec" match {
-      case n if n >= 0 => (args take n, args drop n+1)
       case -1 => (args, List[String]())
+      case n => (args take n, args drop n+1)
     }
     new CmdLineParser(this).parseArgument(before)
     _exec = after

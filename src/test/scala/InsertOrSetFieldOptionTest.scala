@@ -38,8 +38,8 @@ class InsertOrSetFieldOptionTest extends SpecificationWithJUnit {
 
   "InsertOrSetFieldOption.format" should {
     "throw an exception" in new scope {
-      option.parseArgument(List[String]()).format must throwA(new IllegalArgumentException)
-      option.parseArgument(List[String]("--format", "")).format must throwA(new IllegalArgumentException)
+      option.parseArgument(List[String]()).format must throwA[IllegalArgumentException]
+      option.parseArgument(List[String]("--format", "")).format must throwA[IllegalArgumentException]
     }
 
     "return valid format" in new scope {
@@ -70,15 +70,15 @@ class InsertOrSetFieldOptionTest extends SpecificationWithJUnit {
 
   "InsertOrSetFieldOption.commands" should {
     "throw an exception when no commands given" in new scope {
-      option.parseArgument(List[String]()).commands must throwA(new IllegalArgumentException)
+      option.parseArgument(List[String]()).commands must throwA[IllegalArgumentException]
     }
 
     "throw an exception when empty command given" in new scope {
-      option.parseArgument(List[String]("--exec")).commands must throwA(new IllegalArgumentException)
-      option.parseArgument(List[String]("a", "--exec")).commands must throwA(new IllegalArgumentException)
-      option.parseArgument(List[String]("--exec", "|")).commands must throwA(new IllegalArgumentException)
-      option.parseArgument(List[String]("--exec", "a", "|")).commands must throwA(new IllegalArgumentException)
-      option.parseArgument(List[String]("--exec", "a", "|", "|", "b")).commands must throwA(new IllegalArgumentException)
+      option.parseArgument(List[String]("--exec")).commands must throwA[IllegalArgumentException]
+      option.parseArgument(List[String]("a", "--exec")).commands must throwA[IllegalArgumentException]
+      option.parseArgument(List[String]("--exec", "|")).commands must throwA[IllegalArgumentException]
+      option.parseArgument(List[String]("--exec", "a", "|")).commands must throwA[IllegalArgumentException]
+      option.parseArgument(List[String]("--exec", "a", "|", "|", "b")).commands must throwA[IllegalArgumentException]
     }
 
     "return List[List[String]]" in new scope {
