@@ -40,7 +40,7 @@ object Main {
    * @param field 0以上の整数
    * @return
    */
-  def updateField(field: Int, f: List[String] => String): List[String] => List[String] = { row =>
+  def setField(field: Int, f: List[String] => String): List[String] => List[String] = { row =>
     val buffer = row.padTo(field+1, "").toBuffer
     buffer.update(field, f(row))
     buffer.toList
@@ -121,6 +121,7 @@ object Main {
   }
 
   def typed(f: List[String] => Array[Byte], mimeType: String): List[String] => ExecuteResult = { row =>
+    //todo この関数をすべて分けるべきでは
     f(row) match {
       case x if x.isEmpty => EmptyResult
       case x =>
@@ -148,11 +149,6 @@ object Main {
     }
   }
 
-  implicit class FormatString(self: String) {
-    def isSupportedFormat =
-      self.toLowerCase.matches("^(jpe?g|png|tif?f|gif|svg|wav|mp3|ogg|flac|mp4|swf|mov|mpe?g|mkv|m4a|html?|te?xt)$")
-  }
-
   implicit class ArrayByteMessageDigest(self: Array[Byte]) {
     def sha1 = {
       val md = MessageDigest.getInstance("SHA-1")
@@ -163,95 +159,33 @@ object Main {
 
   def main(args: Array[String]) {
 
-    /*
-    insert-field field
-    set-field field
-      field           対象のフィールド番号。
-      --format	      出力フォーマットの拡張子。
-			--source        ソースフィールド番号。指定されたフィールドの値が、--execの一番最初のコマンドに標準入力として与えられる。
-			--exec          コマンド。
-		drop-field field
-		  field           対象のフィールド番号
-     */
+    if (args.isEmpty) { throw new IllegalArgumentException }
+    if (System.in.available() == 0) { throw new IllegalArgumentException }
 
-    val option = new CliOption
-    option.parseArgument(args toList)
-
-    if (option.help) {
-      //printUsage(System.out, parser)
-      System.exit(0)
+    args.head match {
+      case "show-status" =>
+      case "-help" | "--help" =>
+      case command =>
+        val f = command match {
+          case "insert-field" | "set-field" =>
+            val option = new InsertOrSetFieldOption
+            option.parseArgument(args.tail.toList)
+            option.validate()
+            val dir = new File(new File("."), "collection.media")
+            val template = new Template(option.commands, dir.getAbsolutePath)
+            val proc = process(typed(executeCommands(template, option.source), option.format), dir)
+            command match {
+              case "insert-field" => insertField(option.field, proc)
+              case "set-field" => setField(option.field, proc)
+            }
+          case "drop-field" =>
+            val option = new DropFieldOption
+            option.parseArgument(args.tail.toList)
+            option.validate()
+            dropField(option.field)
+        }
+        new TsvUpdater().update(System.in, System.out)(f)
     }
-
-    //required, must exist
-    val input = allCatch opt new File(option.input)
-    val inputMediaDir = allCatch opt new File(input.get.getAbsolutePath + ".media")
-
-    //required, must not already exist
-    val output = allCatch opt new File(option.output)
-    val outputMediaDir = allCatch opt new File(output.get.getAbsolutePath + ".media")
-
-    //optional
-    val execSource = allCatch opt option.execSource.toInt
-
-    //required
-    val field = allCatch opt option.field.toInt
-
-    //default is html
-    //todo specify the type by case classes
-    val fieldType = allCatch opt Option(option.fieldType) getOrElse("html")
-
-    //optional
-    val row = allCatch opt option.execSource.toInt
-
-
-    //check required values
-    //todo check arguments
-
-    if (input.isEmpty) {
-      //--input is required
-      System.exit(1)
-    }
-
-    if (!input.get.exists) {
-      //input file path is invalid
-      System.exit(1)
-    }
-
-    if (!option.test) {
-      if (output.isEmpty) {
-        //--output is required
-        System.exit(1)
-      }
-
-      if (!option.overwrite && output.get.exists) {
-        //output file already exists
-        System.exit(1)
-      }
-
-      if (field.isEmpty) {
-        //--field is required
-        System.exit(1)
-      }
-    }
-
-    //prepare
-    if (option.overwrite && outputMediaDir.nonEmpty && outputMediaDir.get.exists) {
-      //delete output-media-dir
-    }
-
-    //make input-media-dir
-    if (inputMediaDir.nonEmpty && !inputMediaDir.get.exists) {
-
-    }
-
-    //make output-media-dir
-    if (outputMediaDir.nonEmpty && !outputMediaDir.get.exists) {
-
-    }
-
-    //do job
-
-    System.exit(0)
   }
 }
 

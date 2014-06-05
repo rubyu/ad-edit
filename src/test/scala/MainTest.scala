@@ -5,7 +5,6 @@ import org.specs2.mutable._
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Paths, Files}
 import java.io.File
-import com.github.rubyu.adupdate.Main.FormatString
 
 
 class MainTest extends SpecificationWithJUnit {
@@ -32,10 +31,10 @@ class MainTest extends SpecificationWithJUnit {
 
   "Main.updateField" should {
     "update a field of given position" in {
-      Main.updateField(0, { row => "upd" })(List("a")) mustEqual List("upd")
-      Main.updateField(0, { row => "upd" })(List("a", "b")) mustEqual List("upd", "b")
-      Main.updateField(1, { row => "upd" })(List("a")) mustEqual List("a", "upd")
-      Main.updateField(1, { row => "upd" })(List("a", "b")) mustEqual List("a", "upd")
+      Main.setField(0, { row => "upd" })(List("a")) mustEqual List("upd")
+      Main.setField(0, { row => "upd" })(List("a", "b")) mustEqual List("upd", "b")
+      Main.setField(1, { row => "upd" })(List("a")) mustEqual List("a", "upd")
+      Main.setField(1, { row => "upd" })(List("a", "b")) mustEqual List("a", "upd")
     }
   }
 
@@ -104,33 +103,6 @@ class MainTest extends SpecificationWithJUnit {
       Main.HTMLResult("\n").html mustEqual "\n"
       Main.HTMLResult("\r").html mustEqual "\r"
       Main.HTMLResult("\t").html mustEqual "\t"
-    }
-  }
-  
-  "Main.FormatString" should {
-    "return true when match to support format" in {
-      new FormatString("jpg").isSupportedFormat must beTrue
-      new FormatString("jpeg").isSupportedFormat must beTrue
-      new FormatString("png").isSupportedFormat must beTrue
-      new FormatString("tif").isSupportedFormat must beTrue
-      new FormatString("tiff").isSupportedFormat must beTrue
-      new FormatString("gif").isSupportedFormat must beTrue
-      new FormatString("svg").isSupportedFormat must beTrue
-      new FormatString("wav").isSupportedFormat must beTrue
-      new FormatString("mp3").isSupportedFormat must beTrue
-      new FormatString("ogg").isSupportedFormat must beTrue
-      new FormatString("flac").isSupportedFormat must beTrue
-      new FormatString("mp4").isSupportedFormat must beTrue
-      new FormatString("swf").isSupportedFormat must beTrue
-      new FormatString("mov").isSupportedFormat must beTrue
-      new FormatString("mpg").isSupportedFormat must beTrue
-      new FormatString("mpeg").isSupportedFormat must beTrue
-      new FormatString("mkv").isSupportedFormat must beTrue
-      new FormatString("m4a").isSupportedFormat must beTrue
-      new FormatString("html").isSupportedFormat must beTrue
-      new FormatString("htm").isSupportedFormat must beTrue
-      new FormatString("text").isSupportedFormat must beTrue
-      new FormatString("txt").isSupportedFormat must beTrue
     }
   }
 
