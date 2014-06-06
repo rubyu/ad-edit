@@ -4,10 +4,177 @@ package com.github.rubyu.adupdate
 import org.specs2.mutable._
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Paths, Files}
-import java.io.File
+import java.io._
+import org.specs2.specification.Scope
 
 
 class MainTest extends SpecificationWithJUnit {
+
+  "Main.main" should {
+
+    sequential
+
+    class AttemptToExitException(val status: Int) extends RuntimeException
+
+    class MockExitSecurityManager extends java.rmi.RMISecurityManager {
+      override def checkExit(status: Int) { throw new AttemptToExitException(status) }
+      override def checkPermission(perm: java.security.Permission) {}
+    }
+
+    trait scope extends Scope with After {
+      val _sm = System.getSecurityManager
+      val _stdout = System.out
+      val _stderr = System.err
+      val _stdin = System.in
+
+      val stdout, stderr = new ByteArrayOutputStream
+
+      System.setSecurityManager(new MockExitSecurityManager)
+      System.setOut(new PrintStream(new BufferedOutputStream(stdout), true, "utf-8"))
+      System.setErr(new PrintStream(new BufferedOutputStream(stderr), true, "utf-8"))
+
+      def after {
+        System.setSecurityManager(_sm)
+        System.setOut(_stdout)
+        System.setErr(_stderr)
+        System.setIn(_stdin)
+      }
+    }
+
+    "print error when no stdin" in new scope {
+      System.setIn(new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8)))
+      Main.main(Array[String]("a"))
+      System.err.flush()
+      stderr.toString("utf-8") mustEqual List(
+        "Error: No input data; please input data from STDIN",
+        "").mkString(System.lineSeparator)
+    }
+
+    "do insert-field without --source" in new scope {
+      System.setIn(new ByteArrayInputStream("a".getBytes(StandardCharsets.UTF_8)))
+      Main.main(Array[String](
+        "insert-field", "0",
+        "--format", "html",
+        "--exec", "C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\echo", "-n", "b"))
+      System.err.flush()
+      stderr.toString("utf-8") mustEqual ""
+      System.out.flush()
+      stdout.toString("utf-8") mustEqual "b\ta\r\n"
+    }
+
+    "do insert-field with --source" in new scope {
+      System.setIn(new ByteArrayInputStream("a".getBytes(StandardCharsets.UTF_8)))
+      Main.main(Array[String](
+        "insert-field", "0",
+        "--format", "html",
+        "--source", "0",
+        "--exec", "C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\cat"))
+      System.err.flush()
+      stderr.toString("utf-8") mustEqual ""
+      System.out.flush()
+      stdout.toString("utf-8") mustEqual "a\ta\r\n"
+    }
+
+    "do insert-field with --format png" in new scope {
+      System.setIn(new ByteArrayInputStream("a".getBytes(StandardCharsets.UTF_8)))
+      Main.main(Array[String](
+        "insert-field", "1",
+        "--format", "png",
+        "--exec",
+        "C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\cat",
+        "./src/test/scala/resources/anki.png"))
+      System.err.flush()
+      stderr.toString("utf-8") mustEqual ""
+      System.out.flush()
+      stdout.toString("utf-8") mustEqual "a\t<img src=b152357b9dc07ebc65c8d53222f91d39be8b7f5a.png>\r\n"
+      val dir = Main.getMediaDir
+      val file = new File(dir, "b152357b9dc07ebc65c8d53222f91d39be8b7f5a.png")
+      file.exists must beTrue
+      file.delete() must beTrue
+    }
+
+
+    "do insert-field with --format wav" in new scope {
+      System.setIn(new ByteArrayInputStream("a".getBytes(StandardCharsets.UTF_8)))
+      Main.main(Array[String](
+        "insert-field", "1",
+        "--format", "wav",
+        "--exec",
+        "C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\cat",
+        "./src/test/scala/resources/get.wav"))
+      System.err.flush()
+      stderr.toString("utf-8") mustEqual ""
+      System.out.flush()
+      stdout.toString("utf-8") mustEqual "a\t[sound:afbb58df281d034b0707e0dbdb769d86617872e2.wav]\r\n"
+      val dir = Main.getMediaDir
+      val file = new File(dir, "afbb58df281d034b0707e0dbdb769d86617872e2.wav")
+      file.exists must beTrue
+      file.delete() must beTrue
+    }
+
+    "print error when field missing in insert-field" in new scope {
+      System.setIn(new ByteArrayInputStream("a".getBytes(StandardCharsets.UTF_8)))
+      Main.main(Array[String](
+        "insert-field",
+        "--format", "html",
+        "--exec", "C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\echo", "-n", "b"))
+      System.err.flush()
+      stderr.toString("utf-8") mustEqual List(
+        "Error: 'field' missing",
+        "").mkString(System.lineSeparator)
+    }
+
+    "print error when --format missing in insert-field" in new scope {
+      System.setIn(new ByteArrayInputStream("a".getBytes(StandardCharsets.UTF_8)))
+      Main.main(Array[String](
+        "insert-field", "0",
+        "--exec", "C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\echo", "-n", "b"))
+      System.err.flush()
+      stderr.toString("utf-8") mustEqual List(
+        "Error: '--format' missing",
+        "").mkString(System.lineSeparator)
+    }
+
+    "print error when invalid --format given in insert-field" in new scope {
+      System.setIn(new ByteArrayInputStream("a".getBytes(StandardCharsets.UTF_8)))
+      Main.main(Array[String](
+        "insert-field", "0",
+        "--format", "foo",
+        "--exec", "C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\echo", "-n", "b"))
+      System.err.flush()
+      stderr.toString("utf-8") mustEqual List(
+        "Error: 'foo' is not a supported format",
+        "").mkString(System.lineSeparator)
+    }
+
+    "do set-field" in new scope {
+      System.setIn(new ByteArrayInputStream("a".getBytes(StandardCharsets.UTF_8)))
+      Main.main(Array[String](
+        "set-field", "0",
+        "--format", "html",
+        "--exec", "C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\echo", "-n", "b"))
+      System.out.flush()
+      stdout.toString("utf-8") mustEqual "b\r\n"
+    }
+
+    "do drop-field" in new scope {
+      System.setIn(new ByteArrayInputStream("a\tb".getBytes(StandardCharsets.UTF_8)))
+      Main.main(Array[String](
+        "drop-field", "0"))
+      System.out.flush()
+      stdout.toString("utf-8") mustEqual "b\r\n"
+    }
+
+    "print error when field missing in drop-field" in new scope {
+      System.setIn(new ByteArrayInputStream("a\tb".getBytes(StandardCharsets.UTF_8)))
+      Main.main(Array[String](
+        "drop-field"))
+      System.err.flush()
+      stderr.toString("utf-8") mustEqual List(
+        "Error: 'field' missing",
+        "").mkString(System.lineSeparator)
+    }
+  }
 
   "Main.dropField" should {
     "drop a field of given position" in {

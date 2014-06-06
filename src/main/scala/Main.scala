@@ -5,7 +5,10 @@ import java.io._
 import scala.util.control.Exception._
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
+import org.kohsuke.args4j.CmdLineException
 
+
+class ManagedFailure(message: String) extends Exception(message)
 
 object Main {
 
@@ -157,34 +160,53 @@ object Main {
     }
   }
 
+  def getMediaDir = {
+    val dir = new File("collection.media")
+    if (!dir.exists && !dir.mkdir()) {
+      throw new ManagedFailure("Could not create 'collection.media' directory")
+    }
+    dir
+  }
+
   def main(args: Array[String]) {
+    try {
+      if (System.in.available() == 0) {
+        throw new ManagedFailure("No input data; please input data from STDIN")
+      }
 
-    if (args.isEmpty) { throw new IllegalArgumentException }
-    if (System.in.available() == 0) { throw new IllegalArgumentException }
-
-    args.head match {
-      case "show-status" =>
-      case "-help" | "--help" =>
-      case command =>
-        val f = command match {
-          case "insert-field" | "set-field" =>
-            val option = new InsertOrSetFieldOption
-            option.parseArgument(args.tail.toList)
-            option.validate()
-            val dir = new File(new File("."), "collection.media")
-            val template = new Template(option.commands, dir.getAbsolutePath)
-            val proc = process(typed(executeCommands(template, option.source), option.format), dir)
-            command match {
-              case "insert-field" => insertField(option.field, proc)
-              case "set-field" => setField(option.field, proc)
-            }
-          case "drop-field" =>
-            val option = new DropFieldOption
-            option.parseArgument(args.tail.toList)
-            option.validate()
-            dropField(option.field)
-        }
-        new TsvUpdater().update(System.in, System.out)(f)
+      allCatch opt args.head getOrElse("-help") match {
+        case "show-status" =>
+        //統計情報をtsvで出力する
+        case "-help" | "--help" =>
+        case command =>
+          val f = command match {
+            case "insert-field" | "set-field" =>
+              val option = new InsertOrSetFieldOption
+              option.parseArgument(args.tail.toList)
+              option.validate()
+              val dir = getMediaDir
+              val template = new Template(option.commands, dir.getAbsolutePath)
+              val proc = process(typed(executeCommands(template, option.source), option.format), dir)
+              command match {
+                case "insert-field" => insertField(option.field, proc)
+                case "set-field" => setField(option.field, proc)
+              }
+            case "drop-field" =>
+              val option = new DropFieldOption
+              option.parseArgument(args.tail.toList)
+              option.validate()
+              dropField(option.field)
+          }
+          new TsvUpdater().update(System.in, System.out)(f)
+      }
+    } catch {
+      case e: CmdLineException =>
+        System.err.println(s"Error: ${e.getMessage}")
+      case e: ManagedFailure =>
+        System.err.println(s"Error: ${e.getMessage}")
+      case e: Throwable =>
+        System.err.println(s"Unknown Error: ${e.toString}")
+        e.printStackTrace(System.err)
     }
   }
 }

@@ -17,10 +17,10 @@ class InsertOrSetFieldOption {
   def field: Int = {
     Option(_field) match {
       case Some(x) => x.toInt match {
-        case n if n < 0 => throw new IllegalArgumentException
+        case n if n < 0 => throw new ManagedFailure("'field' must be greater than or equal to zero")
         case n => n
       }
-      case None => throw new IllegalArgumentException
+      case None => throw new ManagedFailure("'field' missing")
     }
   }
 
@@ -52,9 +52,9 @@ class InsertOrSetFieldOption {
         case s if s.matches("^(jpe?g|png|tif?f|gif|svg)$") => s
         case s if s.matches("^(wav|mp3|ogg|flac|mp4|swf|mov|mpe?g|mkv|m4a)$") => s
         case s if s.matches("^(html?|te?xt)$") => s
-        case _ => throw new IllegalArgumentException
+        case s => throw new ManagedFailure(s"'${s}' is not a supported format")
       }
-      case None => throw new IllegalArgumentException
+      case None => throw new ManagedFailure("'--format' missing")
     }
   }
 
@@ -69,9 +69,9 @@ class InsertOrSetFieldOption {
       @tailrec
       def split(list: List[List[String]], commands: List[String]): List[List[String]] = {
         commands.indexOf("|") match {
-          case -1 if commands.isEmpty => throw new IllegalArgumentException
+          case -1 if commands.isEmpty => throw new ManagedFailure("'command' missing in '--exec'")
           case -1 => list :+ commands
-          case 0 => throw new IllegalArgumentException
+          case 0 => throw new ManagedFailure("'command' in '--exec' must not start with '|'")
           case n => split(list :+ commands.take(n), commands.drop(n+1))
         }
       }

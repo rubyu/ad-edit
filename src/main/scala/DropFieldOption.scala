@@ -16,10 +16,10 @@ class DropFieldOption {
   def field: Int = {
     Option(_field) match {
       case Some(x) => x.toInt match {
-        case n if n < 0 => throw new IllegalArgumentException
+        case n if n < 0 => throw new ManagedFailure("'field' must be greater than or equal to zero")
         case n => n
       }
-      case None => throw new IllegalArgumentException
+      case None => throw new ManagedFailure("'field' missing")
     }
   }
 

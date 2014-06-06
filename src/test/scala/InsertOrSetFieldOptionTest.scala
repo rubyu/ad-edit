@@ -13,9 +13,12 @@ class InsertOrSetFieldOptionTest extends SpecificationWithJUnit {
   }
 
   "InsertOrSetFieldOption.field" should {
-    "throw an exception" in new scope {
-      option.parseArgument(List[String]()).field must throwA[IllegalArgumentException]
-      option.parseArgument(List[String]("-1")).field must throwA[CmdLineException]
+    "throw CmdLineException when field is -1" in new scope {
+      option.parseArgument(List[String]("-1")) must throwA[CmdLineException]
+    }
+
+    "throw ManagedFailure when list is empty" in new scope {
+      option.parseArgument(List[String]()).field must throwA(new ManagedFailure("'field' missing"))
     }
 
     "return Int" in new scope {
@@ -37,9 +40,12 @@ class InsertOrSetFieldOptionTest extends SpecificationWithJUnit {
   }
 
   "InsertOrSetFieldOption.format" should {
-    "throw an exception" in new scope {
-      option.parseArgument(List[String]()).format must throwA[IllegalArgumentException]
-      option.parseArgument(List[String]("--format", "")).format must throwA[IllegalArgumentException]
+    "throw ManagedFailure when no --format" in new scope {
+      option.parseArgument(List[String]()).format must throwA(new ManagedFailure("'--format' missing"))
+    }
+
+    "throw ManagedFailure when --format foo given" in new scope {
+      option.parseArgument(List[String]("--format", "foo")).format must throwA(new ManagedFailure("'foo' is not a supported format"))
     }
 
     "return valid format" in new scope {
@@ -70,15 +76,15 @@ class InsertOrSetFieldOptionTest extends SpecificationWithJUnit {
 
   "InsertOrSetFieldOption.commands" should {
     "throw an exception when no commands given" in new scope {
-      option.parseArgument(List[String]()).commands must throwA[IllegalArgumentException]
+      option.parseArgument(List[String]()).commands must throwA(new ManagedFailure("'command' missing in '--exec'"))
     }
 
     "throw an exception when empty command given" in new scope {
-      option.parseArgument(List[String]("--exec")).commands must throwA[IllegalArgumentException]
-      option.parseArgument(List[String]("a", "--exec")).commands must throwA[IllegalArgumentException]
-      option.parseArgument(List[String]("--exec", "|")).commands must throwA[IllegalArgumentException]
-      option.parseArgument(List[String]("--exec", "a", "|")).commands must throwA[IllegalArgumentException]
-      option.parseArgument(List[String]("--exec", "a", "|", "|", "b")).commands must throwA[IllegalArgumentException]
+      option.parseArgument(List[String]("--exec")).commands must throwA(new ManagedFailure("'command' missing in '--exec'"))
+      option.parseArgument(List[String]("a", "--exec")).commands must throwA(new ManagedFailure("'command' missing in '--exec'"))
+      option.parseArgument(List[String]("--exec", "|")).commands must throwA(new ManagedFailure("'command' in '--exec' must not start with '|'"))
+      option.parseArgument(List[String]("--exec", "a", "|")).commands must throwA(new ManagedFailure("'command' missing in '--exec'"))
+      option.parseArgument(List[String]("--exec", "a", "|", "|", "b")).commands must throwA(new ManagedFailure("'command' in '--exec' must not start with '|'"))
     }
 
     "return List[List[String]]" in new scope {
