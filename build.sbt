@@ -7,8 +7,6 @@ version := "0.0.0"
 
 scalaVersion := "2.10.4"
 
-scalacOptions := Seq("-unchecked", "-deprecation")
-
 libraryDependencies ++= Seq(
     "org.slf4j" % "slf4j-api" % "1.6.4",
     "org.slf4j" % "slf4j-simple" % "1.6.4",
