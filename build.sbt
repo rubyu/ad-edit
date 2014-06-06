@@ -1,7 +1,9 @@
 
+import AssemblyKeys._
+
 organization := "com.github.rubyu"
 
-name := "ad-update"
+name := "ad-edit"
 
 version := "0.0.0"
 
@@ -15,3 +17,20 @@ libraryDependencies ++= Seq(
     "org.specs2" % "specs2_2.10" % "2.3.12" % "test",
     "junit" % "junit" % "4.7" % "test"
   )
+
+logBuffered in Test := false
+
+parallelExecution in Test := false
+
+mainClass in assembly := Some("com.github.rubyu.adedit.Main")
+
+jarName in assembly <<= (name, version) { (name, version) => name + "-" + version + ".jar" }
+
+assemblySettings
+
+mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>
+  {
+    case "rootdoc.txt" => MergeStrategy.concat
+    case x => old(x)
+  }
+}
