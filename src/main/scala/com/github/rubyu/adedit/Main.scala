@@ -1,5 +1,5 @@
 
-package com.github.rubyu.adupdate
+package com.github.rubyu.adedit
 
 import java.io._
 import scala.util.control.Exception._

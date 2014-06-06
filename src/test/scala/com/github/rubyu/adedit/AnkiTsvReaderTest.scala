@@ -1,5 +1,5 @@
 
-package com.github.rubyu.adupdate
+package com.github.rubyu.adedit
 
 import org.specs2.mutable._
 import java.io.StringReader

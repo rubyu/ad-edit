@@ -1,5 +1,5 @@
 
-package com.github.rubyu.adupdate
+package com.github.rubyu.adedit
 
 import org.kohsuke.args4j.{Option => Opt, Argument => Arg}
 import org.kohsuke.args4j.CmdLineParser

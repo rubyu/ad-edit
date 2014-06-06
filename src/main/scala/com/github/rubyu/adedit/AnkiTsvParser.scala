@@ -1,5 +1,5 @@
 
-package com.github.rubyu.adupdate
+package com.github.rubyu.adedit
 
 import util.parsing.combinator.RegexParsers
 

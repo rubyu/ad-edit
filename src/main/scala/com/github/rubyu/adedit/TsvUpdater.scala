@@ -1,9 +1,9 @@
 
-package com.github.rubyu.adupdate
+package com.github.rubyu.adedit
 
 import java.io._
 import java.nio.charset.StandardCharsets
-import com.github.rubyu.adupdate.AnkiTsvParser.result._
+import com.github.rubyu.adedit.AnkiTsvParser.result._
 
 
 /**

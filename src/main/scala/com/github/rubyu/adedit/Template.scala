@@ -1,5 +1,5 @@
 
-package com.github.rubyu.adupdate
+package com.github.rubyu.adedit
 
 import org.fusesource.scalate.{Binding, TemplateEngine}
 
@@ -24,8 +24,8 @@ class Template(commands: List[List[String]], private val mediaDir: String) {
 
   private def compileCommands(commands: List[List[String]]) = {
     val bindings = List(
-      Binding("field", "com.github.rubyu.adupdate.Template.Field"),
-      Binding("media", "com.github.rubyu.adupdate.Template.Media"))
+      Binding("field", "com.github.rubyu.adedit.Template.Field"),
+      Binding("media", "com.github.rubyu.adedit.Template.Media"))
 
     commands map { _ map { engine.compileSsp(_, bindings) } }
   }
