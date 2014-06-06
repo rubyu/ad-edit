@@ -12,7 +12,7 @@ class TsvUpdaterTest extends SpecificationWithJUnit {
     val updater = new TsvUpdater
     val output = new ByteArrayOutputStream
 
-    def input(str: String) = new ByteArrayInputStream(str.getBytes)
+    def input(str: String) = new ByteArrayInputStream(str.getBytes("utf-8"))
     def outputStr = output.toString("utf-8")
   }
 
