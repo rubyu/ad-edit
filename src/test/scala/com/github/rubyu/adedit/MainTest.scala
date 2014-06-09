@@ -41,9 +41,36 @@ class MainTest extends SpecificationWithJUnit {
       }
     }
 
-    "print error when no stdin" in new scope {
+    "print error when invalid command" in new scope {
       System.setIn(new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8)))
       Main.main(Array[String]("a"))
+      System.err.flush()
+      stderr.toString("utf-8") mustEqual List(
+        "Error: 'a' is not a supported command",
+        "").mkString(System.lineSeparator)
+    }
+
+    "print error when insert-field without STDIN" in new scope {
+      System.setIn(new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8)))
+      Main.main(Array[String]("insert-field"))
+      System.err.flush()
+      stderr.toString("utf-8") mustEqual List(
+        "Error: No input data; please input data from STDIN",
+        "").mkString(System.lineSeparator)
+    }
+
+    "print error when set-field without STDIN" in new scope {
+      System.setIn(new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8)))
+      Main.main(Array[String]("set-field"))
+      System.err.flush()
+      stderr.toString("utf-8") mustEqual List(
+        "Error: No input data; please input data from STDIN",
+        "").mkString(System.lineSeparator)
+    }
+
+    "print error when drop-field without STDIN" in new scope {
+      System.setIn(new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8)))
+      Main.main(Array[String]("drop-field"))
       System.err.flush()
       stderr.toString("utf-8") mustEqual List(
         "Error: No input data; please input data from STDIN",

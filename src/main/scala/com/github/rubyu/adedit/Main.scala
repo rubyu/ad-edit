@@ -173,12 +173,7 @@ object Main {
       allCatch opt args.head getOrElse("help") match {
         case "help" | "-h" | "-help" | "--help" =>
           printUsage(System.out)
-        case "show-status" =>
-          if (System.in.available() == 0) {
-            throw new ManagedFailure("No input data; please input data from STDIN")
-          }
-        //統計情報をtsvで出力する
-        case command =>
+        case command @ ("insert-field" | "set-field" | "drop-field") =>
           if (System.in.available() == 0) {
             throw new ManagedFailure("No input data; please input data from STDIN")
           }
@@ -201,7 +196,7 @@ object Main {
               dropField(option.field)
           }
           new TsvUpdater().update(System.in, System.out)(f)
-        //todo handling unknown command
+        case command @ _ => throw new ManagedFailure(s"'${command}' is not a supported command")
       }
     } catch {
       case e: CmdLineException =>

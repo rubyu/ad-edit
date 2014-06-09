@@ -68,11 +68,5 @@ Target field number.
 
 ---
 
-### show-status
-
-Prints detail information.
-
----
-
 ### help
 Prints help.
