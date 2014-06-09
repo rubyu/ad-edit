@@ -201,13 +201,16 @@ object Main {
     } catch {
       case e: CmdLineException =>
         System.err.println(s"Error: ${e.getMessage}")
+        System.exit(1)
       case e: ManagedFailure =>
         System.err.println(s"Error: ${e.getMessage}")
+        System.exit(1)
       case e: Throwable =>
         System.err.println(s"Unknown Error: ${e.toString}")
         e.printStackTrace(System.err)
+        System.exit(1)
     }
-    //todo exit code
+    System.exit(0)
   }
 
   def printUsage(out: PrintStream) {

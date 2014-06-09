@@ -43,7 +43,7 @@ class MainTest extends SpecificationWithJUnit {
 
     "print error when invalid command" in new scope {
       System.setIn(new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8)))
-      Main.main(Array[String]("a"))
+      Main.main(Array[String]("a")) must throwAn(new AttemptToExitException(1))
       System.err.flush()
       stderr.toString("utf-8") mustEqual List(
         "Error: 'a' is not a supported command",
@@ -52,7 +52,7 @@ class MainTest extends SpecificationWithJUnit {
 
     "print error when insert-field without STDIN" in new scope {
       System.setIn(new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8)))
-      Main.main(Array[String]("insert-field"))
+      Main.main(Array[String]("insert-field")) must throwAn(new AttemptToExitException(1))
       System.err.flush()
       stderr.toString("utf-8") mustEqual List(
         "Error: No input data; please input data from STDIN",
@@ -61,7 +61,7 @@ class MainTest extends SpecificationWithJUnit {
 
     "print error when set-field without STDIN" in new scope {
       System.setIn(new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8)))
-      Main.main(Array[String]("set-field"))
+      Main.main(Array[String]("set-field")) must throwAn(new AttemptToExitException(1))
       System.err.flush()
       stderr.toString("utf-8") mustEqual List(
         "Error: No input data; please input data from STDIN",
@@ -70,7 +70,7 @@ class MainTest extends SpecificationWithJUnit {
 
     "print error when drop-field without STDIN" in new scope {
       System.setIn(new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8)))
-      Main.main(Array[String]("drop-field"))
+      Main.main(Array[String]("drop-field")) must throwAn(new AttemptToExitException(1))
       System.err.flush()
       stderr.toString("utf-8") mustEqual List(
         "Error: No input data; please input data from STDIN",
@@ -82,7 +82,8 @@ class MainTest extends SpecificationWithJUnit {
       Main.main(Array[String](
         "insert-field", "0",
         "--format", "html",
-        "--exec", "C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\echo", "-n", "b"))
+        "--exec", "C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\echo", "-n", "b")
+      ) must throwAn(new AttemptToExitException(0))
       System.err.flush()
       stderr.toString("utf-8") mustEqual ""
       System.out.flush()
@@ -95,7 +96,8 @@ class MainTest extends SpecificationWithJUnit {
         "insert-field", "0",
         "--format", "html",
         "--source", "0",
-        "--exec", "C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\cat"))
+        "--exec", "C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\cat")
+      ) must throwAn(new AttemptToExitException(0))
       System.err.flush()
       stderr.toString("utf-8") mustEqual ""
       System.out.flush()
@@ -109,7 +111,8 @@ class MainTest extends SpecificationWithJUnit {
         "--format", "png",
         "--exec",
         "C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\cat",
-        "./src/test/scala/resources/anki.png"))
+        "./src/test/scala/resources/anki.png")
+      ) must throwAn(new AttemptToExitException(0))
       System.err.flush()
       stderr.toString("utf-8") mustEqual ""
       System.out.flush()
@@ -128,7 +131,8 @@ class MainTest extends SpecificationWithJUnit {
         "--format", "wav",
         "--exec",
         "C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\cat",
-        "./src/test/scala/resources/get.wav"))
+        "./src/test/scala/resources/get.wav")
+      ) must throwAn(new AttemptToExitException(0))
       System.err.flush()
       stderr.toString("utf-8") mustEqual ""
       System.out.flush()
@@ -144,7 +148,8 @@ class MainTest extends SpecificationWithJUnit {
       Main.main(Array[String](
         "insert-field",
         "--format", "html",
-        "--exec", "C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\echo", "-n", "b"))
+        "--exec", "C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\echo", "-n", "b")
+      ) must throwAn(new AttemptToExitException(0))
       System.err.flush()
       stderr.toString("utf-8") mustEqual List(
         "Error: 'field' missing",
@@ -155,7 +160,8 @@ class MainTest extends SpecificationWithJUnit {
       System.setIn(new ByteArrayInputStream("a".getBytes(StandardCharsets.UTF_8)))
       Main.main(Array[String](
         "insert-field", "0",
-        "--exec", "C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\echo", "-n", "b"))
+        "--exec", "C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\echo", "-n", "b")
+      ) must throwAn(new AttemptToExitException(0))
       System.err.flush()
       stderr.toString("utf-8") mustEqual List(
         "Error: '--format' missing",
@@ -167,7 +173,8 @@ class MainTest extends SpecificationWithJUnit {
       Main.main(Array[String](
         "insert-field", "0",
         "--format", "foo",
-        "--exec", "C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\echo", "-n", "b"))
+        "--exec", "C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\echo", "-n", "b")
+      ) must throwAn(new AttemptToExitException(0))
       System.err.flush()
       stderr.toString("utf-8") mustEqual List(
         "Error: 'foo' is not a supported format",
@@ -179,7 +186,8 @@ class MainTest extends SpecificationWithJUnit {
       Main.main(Array[String](
         "set-field", "0",
         "--format", "html",
-        "--exec", "C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\echo", "-n", "b"))
+        "--exec", "C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\echo", "-n", "b")
+      ) must throwAn(new AttemptToExitException(0))
       System.out.flush()
       stdout.toString("utf-8") mustEqual "b\r\n"
     }
@@ -187,7 +195,7 @@ class MainTest extends SpecificationWithJUnit {
     "do drop-field" in new scope {
       System.setIn(new ByteArrayInputStream("a\tb".getBytes(StandardCharsets.UTF_8)))
       Main.main(Array[String](
-        "drop-field", "0"))
+        "drop-field", "0")) must throwAn(new AttemptToExitException(0))
       System.out.flush()
       stdout.toString("utf-8") mustEqual "b\r\n"
     }
@@ -195,7 +203,7 @@ class MainTest extends SpecificationWithJUnit {
     "print error when field missing in drop-field" in new scope {
       System.setIn(new ByteArrayInputStream("a\tb".getBytes(StandardCharsets.UTF_8)))
       Main.main(Array[String](
-        "drop-field"))
+        "drop-field")) must throwAn(new AttemptToExitException(1))
       System.err.flush()
       stderr.toString("utf-8") mustEqual List(
         "Error: 'field' missing",
@@ -204,7 +212,7 @@ class MainTest extends SpecificationWithJUnit {
 
     "print help" in new scope {
       Main.main(Array[String](
-        "help"))
+        "help")) must throwAn(new AttemptToExitException(0))
       stdout.toString("utf-8") mustEqual "See https://github.com/rubyu/ad-edit" + System.lineSeparator
     }
   }
