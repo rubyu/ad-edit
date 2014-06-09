@@ -47,7 +47,7 @@ The format of the data that the last `command` in `--exec` clause will be return
 ##### --exec command [| command ...]
 Definition of a generator of new field. `command` is a command expression in a shell(e.g. `echo -n hello!`). `--exec` executes `command` and the result will be the data of new field. In the avobe instance, the result will be `hello!`.
 
-`command` supports Template. The template expression is `${ }`. Build-in values are `field` and `media`. `field` provides access to the data of the fields.  `... --exec echo "${ field(0) }"` is equivalent to `... --source 0 --exec cat`. `media` has a `dir` property that returns the absolute path to `./collection.media`. To escape template expression, use `$${  }`. `... --exec echo  -n "$${ field(0) }"` will be output `$${ field(0) }` as is.
+`command` supports Template. The template expression is `${ }`. Build-in values are `field` and `media`. `field` provides access to the data of the fields.  `... --exec echo -n "${ field(0) }"` is equivalent to `... --source 0 --exec cat`. `media` has a `dir` property that returns the absolute path to `./collection.media`. To escape template expression, use `$${  }`. `... --exec echo  -n "$${ field(0) }"` will be output `$${ field(0) }` as is.
 
 `--exec` supports Pipeline like a shell. The output of a command is connected to the input of the following command. And the output of last command will be treated as the result. The pipeline character is `|`, just the same as in a shell, but note that it in `--exec` clause must be escaped with shell's escape character for that reason. 
 
@@ -56,7 +56,7 @@ Definition of a generator of new field. `command` is a command expression in a s
 ### set-field
 Generates new field and overwrites the specified `field`.
 
-Options are the same as `insert-field` command.
+Options are the same as `insert-field`.
 
 ---
 
