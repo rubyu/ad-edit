@@ -512,6 +512,11 @@ class AnkiTsvParserTest extends SpecificationWithJUnit {
       result.get mustEqual AnkiTsvParser.result.Row(List("a"))
     }
 
+    "return Row when row expression is given and ends with \\r" in new scope {
+      val result = parser.parse(parser.first_line, "a\r")
+      result.get mustEqual AnkiTsvParser.result.Row(List("a"))
+    }
+
     "return Row when row expression is given and ends with \\r\\n" in new scope {
       val result = parser.parse(parser.first_line, "a\r\n")
       result.get mustEqual AnkiTsvParser.result.Row(List("a"))
@@ -556,6 +561,11 @@ class AnkiTsvParserTest extends SpecificationWithJUnit {
 
     "return Row when row expression is given and ends with \\n" in new scope {
       val result = parser.parse(parser.line, "a\n")
+      result.get mustEqual AnkiTsvParser.result.Row(List("a"))
+    }
+
+    "return Row when row expression is given and ends with \\r" in new scope {
+      val result = parser.parse(parser.line, "a\r")
       result.get mustEqual AnkiTsvParser.result.Row(List("a"))
     }
 

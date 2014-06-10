@@ -63,5 +63,5 @@ class AnkiTsvParser extends RegexParsers {
   def SPACE           = ' '
   def QUOTE           = '"'
   def DELIM           = '\t'
-  def EOL             = "\r\n" | "\r" | "\n"
+  def EOL             = rep1( "\r" | "\n" ) ^^ { _.mkString }
 }

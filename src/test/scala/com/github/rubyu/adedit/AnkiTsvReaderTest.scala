@@ -24,6 +24,11 @@ class AnkiTsvReaderTest extends SpecificationWithJUnit {
       result.toList mustEqual List()
     }
 
+    "parse \\r\\r\\n" in {
+      val result = new AnkiTsvReader(new StringReader("\r\r\n"))
+      result.toList mustEqual List()
+    }
+
     "parse \\r\\n" in {
       val result = new AnkiTsvReader(new StringReader("\r\n"))
       result.toList mustEqual List()
@@ -59,13 +64,18 @@ class AnkiTsvReaderTest extends SpecificationWithJUnit {
       result.toList mustEqual List(Row(List("a")), Row(List("b")))
     }
 
-    "parse raw-text, \n" in {
+    "parse raw-text, \\n" in {
       val result = new AnkiTsvReader(new StringReader("a\n"))
       result.toList mustEqual List(Row(List("a")))
     }
 
-    "parse raw-text, \r\n" in {
+    "parse raw-text, \\r\\n" in {
       val result = new AnkiTsvReader(new StringReader("a\r\n"))
+      result.toList mustEqual List(Row(List("a")))
+    }
+
+    "parse raw-text, \\r\\r\\n" in {
+      val result = new AnkiTsvReader(new StringReader("a\r\r\n"))
       result.toList mustEqual List(Row(List("a")))
     }
 
