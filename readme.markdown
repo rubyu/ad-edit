@@ -65,4 +65,4 @@ Target field number.
 ---
 
 ### help
-Prints help.
+Prints only "See https://github.com/rubyu/ad-edit" :P
