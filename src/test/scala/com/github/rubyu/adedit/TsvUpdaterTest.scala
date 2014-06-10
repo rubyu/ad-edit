@@ -9,6 +9,14 @@ import java.io._
 class TsvUpdaterTest extends SpecificationWithJUnit {
 
   trait scope extends Scope {
+    val _stderr = System.err
+    val stderr = new ByteArrayOutputStream
+    System.setErr(new PrintStream(new BufferedOutputStream(stderr), true, "utf-8"))
+
+    def after {
+      System.setErr(_stderr)
+    }
+
     val updater = new TsvUpdater
     val output = new ByteArrayOutputStream
 
@@ -17,6 +25,12 @@ class TsvUpdaterTest extends SpecificationWithJUnit {
   }
 
   "TsvUpdater.update" should {
+    "print error when invalid string found" in new scope {
+      updater.update(input(List(
+        "\"").mkString("\r\n")), output) { arr => arr }
+      stderr.toString("utf-8") mustEqual("invalid string('\"') found; at line 1" + System.lineSeparator)
+    }
+
     "output a character as is" in new scope {
       updater.update(input(List(
         "あ").mkString("\r\n")), output) { arr => arr }

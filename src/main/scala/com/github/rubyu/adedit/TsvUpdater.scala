@@ -24,7 +24,9 @@ class TsvUpdater {
       case elem: Row => writer.write(f(elem.value))
       case elem: Comment =>
       case elem: Tags =>
-      case elem: InvalidString => throw new InterruptedException
+      case elem: InvalidString =>
+        System.err.println(s"invalid string('${elem.value}') found; at line ${reader.lastSuccess.getOrElse(-1) + 2}")
+        System.err.flush()
     }
   }
 }
