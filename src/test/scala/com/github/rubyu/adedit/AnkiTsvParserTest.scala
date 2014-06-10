@@ -11,6 +11,24 @@ class AnkiTsvParserTest extends SpecificationWithJUnit {
     val parser = new AnkiTsvParser
   }
 
+
+  "AnkiTsvParser.eol_res" should {
+    "parse \\r" in new scope {
+      val result = parser.parse(parser.eol_res, "\r")
+      result.get mustEqual AnkiTsvParser.result.EOL("\r")
+    }
+
+    "parse \\n" in new scope {
+      val result = parser.parse(parser.eol_res, "\n")
+      result.get mustEqual AnkiTsvParser.result.EOL("\n")
+    }
+
+    "parse \\r\\n" in new scope {
+      val result = parser.parse(parser.eol_res, "\r\n")
+      result.get mustEqual AnkiTsvParser.result.EOL("\r\n")
+    }
+  }
+
   "AnkiTsvParser.raw_value_0" should {
     "return empty string value when input is empty" in new scope {
       val result = parser.parse(parser.raw_value_0, "")
@@ -27,18 +45,28 @@ class AnkiTsvParserTest extends SpecificationWithJUnit {
       result.get mustEqual "abc"
     }
 
-    "return empty string value when input starts with \\n" in new scope {
+    "return empty string value when input is \\n" in new scope {
       val result = parser.parse(parser.raw_value_0, "\n")
       result.get mustEqual ""
     }
 
-    "return empty string value when input starts with \\r\\n" in new scope {
+    "return empty string value when input is \\r" in new scope {
+      val result = parser.parse(parser.raw_value_0, "\r")
+      result.get mustEqual ""
+    }
+
+    "return empty string value when input is \\r\\n" in new scope {
       val result = parser.parse(parser.raw_value_0, "\r\n")
       result.get mustEqual ""
     }
 
     "parse until \\n" in new scope {
       val result = parser.parse(parser.raw_value_0, "a\nb")
+      result.get mustEqual "a"
+    }
+
+    "parse until \\r" in new scope {
+      val result = parser.parse(parser.raw_value_0, "a\rb")
       result.get mustEqual "a"
     }
 
@@ -319,12 +347,12 @@ class AnkiTsvParserTest extends SpecificationWithJUnit {
       result.get mustEqual "a"
     }
 
-    "parse quoted-text contains \n" in new scope {
+    "parse quoted-text contains \\n" in new scope {
       val result = parser.parse(parser.field_1, "\"a\nb\"")
       result.get mustEqual "a\nb"
     }
 
-    "parse quoted-text contains \r\n" in new scope {
+    "parse quoted-text contains \\r\\n" in new scope {
       val result = parser.parse(parser.field_1, "\"a\r\nb\"")
       result.get mustEqual "a\r\nb"
     }
