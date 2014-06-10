@@ -17,21 +17,17 @@ java -jar ad-edit.jar drop-field field
 ```
 
 ```
-java -jar ad-edit.jar show-status
-```
-
-```
 java -jar ad-edit.jar help
 ```
 
 ## DESCRIPTION
 
-Edits a TSV file. The input data is read from STDIN and the result is output to STDOUT. The options are as follows:
+Edits a TSV file. The input is read from STDIN and the result is output to STDOUT. The options are as follows:
 
 ---
 
 ### insert-field
-Generates new field and inserts it to before the specified `field`.
+Generates new field and inserts it before the specified `field`.
 
 ##### field
 Target field number.
@@ -47,7 +43,7 @@ The format of the data that the last `command` in `--exec` clause will be return
 ##### --exec command [| command ...]
 Definition of a generator of new field. `command` is a command expression in a shell(e.g. `echo -n hello!`). `--exec` executes `command` and the result will be the data of new field. In the avobe instance, the result will be `hello!`.
 
-`command` supports Template. The template expression is `${ }`. Build-in values are `field` and `media`. `field` provides access to the data of the fields.  `... --exec echo -n "${ field(0) }"` is equivalent to `... --source 0 --exec cat`. `media` has a `dir` property that returns the absolute path to `./collection.media`. To escape template expression, use `$${  }`. `... --exec echo  -n "$${ field(0) }"` will be output `$${ field(0) }` as is.
+`command` supports Template. The template expression is `${ }`. Build-in properties are `field` and `media`. The `field` property provides access to the data of the fields. The result of `... --exec echo -n "${ field(0) }"` is equivalent to the result of `... --source 0 --exec cat`. The `media` property has `dir` property that returns the absolute path to `./collection.media`. To escape template expression, use `$${  }`. A command `... --exec echo  -n "$${ field(0) }"` will be output `$${ field(0) }` as is.
 
 `--exec` supports Pipeline like a shell. The output of a command is connected to the input of the following command. And the output of last command will be treated as the result. The pipeline character is `|`, just the same as in a shell, but note that it in `--exec` clause must be escaped with shell's escape character for that reason. 
 
