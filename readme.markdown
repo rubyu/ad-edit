@@ -22,7 +22,7 @@ java -jar ad-edit.jar help
 
 ## DESCRIPTION
 
-Edits a TSV file. The input is read from STDIN and the result is output to STDOUT. The options are as follows:
+Edits a TSV(Tab separated CSV) file. The input is read from STDIN and the result is output to STDOUT. The input must be encoding in UTF-8. The options are as follows:
 
 ---
 
@@ -38,7 +38,7 @@ Source field number. If specified, the value of the field that corresponds to th
 
 
 ##### --format ext
-The format of the data that the last `command` in `--exec` clause will be return. Allowed values are `jpg`, `png`, `tif`, `gif`, `svg`, `wav`, `mp3`, `ogg`, `flac`, `mp4`, `swf`, `mov`, `mpg`, `mkv`, `m4a`, `html` and `txt`.
+The extension name of a format of the data that the last `command` in `--exec` clause will be return. Allowed values are `jpg`, `png`, `tif`, `gif`, `svg`, `wav`, `mp3`, `ogg`, `flac`, `mp4`, `swf`, `mov`, `mpg`, `mkv`, `m4a`, `html` and `txt`.
 
 ##### --exec command [| command ...]
 Definition of a generator of new field. `command` is a command expression in a shell(e.g. `echo -n hello!`). `--exec` executes `command` and the result will be the data of new field. In the avobe instance, the result will be `hello!`.
