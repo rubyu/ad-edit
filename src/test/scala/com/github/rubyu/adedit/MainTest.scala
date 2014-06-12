@@ -222,8 +222,8 @@ class MainTest extends SpecificationWithJUnit {
   "Main.executeCommands" should {
     "return Array[Byte]" in {
       val template = new Template(List(List(
-        "gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\echo", "${field(0)}")), "")
-      Main.executeCommands(template, None)(List("hoge")) mustEqual "hoge\n".getBytes(StandardCharsets.UTF_8)
+        "gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\echo", "${field(0)}")))
+      Main.executeCommands(template, None, "")(List("hoge")) mustEqual "hoge\n".getBytes(StandardCharsets.UTF_8)
     }
   }
 

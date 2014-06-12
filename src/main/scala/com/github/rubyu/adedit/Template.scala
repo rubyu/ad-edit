@@ -6,19 +6,24 @@ import org.fusesource.scalate.{Binding, TemplateEngine}
 
 object Template {
 
-  class Field(val row: List[String]) {
+  class Field {
+    var row: List[String] = _
     def apply(index: Int) = if (index < row.size) row(index) else ""
   }
 
-  class Media(val mediaDir: String) {
-    def dir = mediaDir
+  class Media {
+    var dir: String = _
   }
 }
 
-class Template(commands: List[List[String]], private val mediaDir: String) {
+class Template(commands: List[List[String]]) {
 
   private val engine = new TemplateEngine
   engine.escapeMarkup = false //avoid escape for markup characters
+
+  private val field = new Template.Field
+  private val media = new Template.Media
+  private val context = Map("field" -> field, "media" -> media)
 
   private val compiledCommands = compileCommands(commands)
 
@@ -30,10 +35,9 @@ class Template(commands: List[List[String]], private val mediaDir: String) {
     commands map { _ map { engine.compileSsp(_, bindings) } }
   }
 
-  def layout(row: List[String]): List[List[String]] = {
-    val context = Map(
-      "field" -> new Template.Field(row),
-      "media" -> new Template.Media(mediaDir))
+  def layout(row: List[String], mediaDir: String): List[List[String]] = {
+    field.row = row
+    media.dir = mediaDir
     compiledCommands map { _ map { t => engine.layout(t.source, context) } }
   }
 }

@@ -111,9 +111,9 @@ object Main {
     def html = ""
   }
 
-  def executeCommands(template: Template, source: Option[Int]): List[String] => Array[Byte] = { row =>
+  def executeCommands(template: Template, source: Option[Int], mediaDir: String): List[String] => Array[Byte] = { row =>
     val input = allCatch opt row(source.get) getOrElse("")
-    OuterProcess.execute(template.layout(row), input)
+    OuterProcess.execute(template.layout(row, mediaDir), input)
   }
 
   def process(f: List[String] => ExecuteResult, mediaDir: File): List[String] => String = { row =>
@@ -180,8 +180,8 @@ object Main {
               option.parseArgument(args.tail.toList)
               option.validate()
               val dir = getMediaDir
-              val template = new Template(option.commands, dir.getAbsolutePath)
-              val proc = process(typed(executeCommands(template, option.source), option.format), dir)
+              val template = new Template(option.commands)
+              val proc = process(typed(executeCommands(template, option.source, dir.getAbsolutePath), option.format), dir)
               command match {
                 case "insert-field" => insertField(option.field, proc)
                 case "set-field" => setField(option.field, proc)
