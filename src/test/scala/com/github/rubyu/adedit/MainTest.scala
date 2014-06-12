@@ -50,39 +50,12 @@ class MainTest extends SpecificationWithJUnit {
         "").mkString(System.lineSeparator)
     }
 
-    "print error when insert-field without STDIN" in new scope {
-      System.setIn(new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8)))
-      Main.main(Array[String]("insert-field")) must throwAn(new AttemptToExitException(1))
-      System.err.flush()
-      stderr.toString("utf-8") mustEqual List(
-        "Error: No input data; please input data from STDIN",
-        "").mkString(System.lineSeparator)
-    }
-
-    "print error when set-field without STDIN" in new scope {
-      System.setIn(new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8)))
-      Main.main(Array[String]("set-field")) must throwAn(new AttemptToExitException(1))
-      System.err.flush()
-      stderr.toString("utf-8") mustEqual List(
-        "Error: No input data; please input data from STDIN",
-        "").mkString(System.lineSeparator)
-    }
-
-    "print error when drop-field without STDIN" in new scope {
-      System.setIn(new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8)))
-      Main.main(Array[String]("drop-field")) must throwAn(new AttemptToExitException(1))
-      System.err.flush()
-      stderr.toString("utf-8") mustEqual List(
-        "Error: No input data; please input data from STDIN",
-        "").mkString(System.lineSeparator)
-    }
-
     "do insert-field without --source" in new scope {
       System.setIn(new ByteArrayInputStream("a".getBytes(StandardCharsets.UTF_8)))
       Main.main(Array[String](
         "insert-field", "0",
         "--format", "html",
-        "--exec", "C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\echo", "-n", "b")
+        "--exec", "gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\echo", "-n", "b")
       ) must throwAn(new AttemptToExitException(0))
       System.err.flush()
       stderr.toString("utf-8") mustEqual ""
@@ -96,7 +69,7 @@ class MainTest extends SpecificationWithJUnit {
         "insert-field", "0",
         "--format", "html",
         "--source", "0",
-        "--exec", "C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\cat")
+        "--exec", "gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\cat")
       ) must throwAn(new AttemptToExitException(0))
       System.err.flush()
       stderr.toString("utf-8") mustEqual ""
@@ -110,7 +83,7 @@ class MainTest extends SpecificationWithJUnit {
         "insert-field", "1",
         "--format", "png",
         "--exec",
-        "C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\cat",
+        "gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\cat",
         "./src/test/scala/resources/anki.png")
       ) must throwAn(new AttemptToExitException(0))
       System.err.flush()
@@ -130,7 +103,7 @@ class MainTest extends SpecificationWithJUnit {
         "insert-field", "1",
         "--format", "wav",
         "--exec",
-        "C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\cat",
+        "gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\cat",
         "./src/test/scala/resources/get.wav")
       ) must throwAn(new AttemptToExitException(0))
       System.err.flush()
@@ -148,7 +121,7 @@ class MainTest extends SpecificationWithJUnit {
       Main.main(Array[String](
         "insert-field",
         "--format", "html",
-        "--exec", "C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\echo", "-n", "b")
+        "--exec", "gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\echo", "-n", "b")
       ) must throwAn(new AttemptToExitException(0))
       System.err.flush()
       stderr.toString("utf-8") mustEqual List(
@@ -160,7 +133,7 @@ class MainTest extends SpecificationWithJUnit {
       System.setIn(new ByteArrayInputStream("a".getBytes(StandardCharsets.UTF_8)))
       Main.main(Array[String](
         "insert-field", "0",
-        "--exec", "C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\echo", "-n", "b")
+        "--exec", "gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\echo", "-n", "b")
       ) must throwAn(new AttemptToExitException(0))
       System.err.flush()
       stderr.toString("utf-8") mustEqual List(
@@ -173,7 +146,7 @@ class MainTest extends SpecificationWithJUnit {
       Main.main(Array[String](
         "insert-field", "0",
         "--format", "foo",
-        "--exec", "C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\echo", "-n", "b")
+        "--exec", "gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\echo", "-n", "b")
       ) must throwAn(new AttemptToExitException(0))
       System.err.flush()
       stderr.toString("utf-8") mustEqual List(
@@ -186,7 +159,7 @@ class MainTest extends SpecificationWithJUnit {
       Main.main(Array[String](
         "set-field", "0",
         "--format", "html",
-        "--exec", "C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\echo", "-n", "b")
+        "--exec", "gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\echo", "-n", "b")
       ) must throwAn(new AttemptToExitException(0))
       System.out.flush()
       stdout.toString("utf-8") mustEqual "b\r\n"
@@ -249,7 +222,7 @@ class MainTest extends SpecificationWithJUnit {
   "Main.executeCommands" should {
     "return Array[Byte]" in {
       val template = new Template(List(List(
-        "C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\echo", "${field(0)}")), "")
+        "gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\echo", "${field(0)}")), "")
       Main.executeCommands(template, None)(List("hoge")) mustEqual "hoge\n".getBytes(StandardCharsets.UTF_8)
     }
   }

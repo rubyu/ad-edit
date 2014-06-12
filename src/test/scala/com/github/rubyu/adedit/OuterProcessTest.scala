@@ -21,14 +21,14 @@ class OuterProcessTest extends SpecificationWithJUnit {
 
     "call cygwin programs" in {
       val result = OuterProcess.execute(List(
-        List("C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\echo", "a")
+        List("gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\echo", "a")
       ))
       new String(result, "UTF-8") mustEqual("a" + "\n")
     }
 
     "call programs with arguments" in {
       val result = OuterProcess.execute(List(
-        List("C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\cat",
+        List("gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\cat",
           "./src/test/scala/resources/outer_process_test.txt")
       ))
       new String(result, "UTF-8") mustEqual("あ\r\nああ\r\nangel\r\néindʒəl\r\n")
@@ -36,9 +36,9 @@ class OuterProcessTest extends SpecificationWithJUnit {
 
     "call programs with unicode encoded arguments" in {
       val result = OuterProcess.execute(List(
-        List("C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\cat",
+        List("gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\cat",
           "./src/test/scala/resources/outer_process_test.txt"),
-        List("C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\grep",
+        List("gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\grep",
           "éindʒəl")
       ))
       new String(result, "UTF-8") mustEqual("éindʒəl\n")
@@ -46,7 +46,7 @@ class OuterProcessTest extends SpecificationWithJUnit {
 
     "call programs with standard input" in {
       val result = OuterProcess.execute(List(
-        List("C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\cat",
+        List("gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\cat",
           "./src/test/scala/resources/outer_process_test.txt",
           "-")
       ), "stdin-data")
@@ -55,7 +55,7 @@ class OuterProcessTest extends SpecificationWithJUnit {
 
     "call programs with unicode encoded standard input" in {
       val result = OuterProcess.execute(List(
-        List("C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\cat",
+        List("gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\cat",
           "./src/test/scala/resources/outer_process_test.txt",
           "-")
       ), "éindʒəl")
@@ -64,9 +64,9 @@ class OuterProcessTest extends SpecificationWithJUnit {
 
     "connect programs" in {
       val result = OuterProcess.execute(List(
-        List("C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\cat",
+        List("gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\cat",
           "./src/test/scala/resources/outer_process_test.txt"),
-        List("C:\\ad-tools\\gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\grep",
+        List("gnupack_basic-11.00\\app\\cygwin\\cygwin\\bin\\grep",
         "an")
       ))
       new String(result, "UTF-8") mustEqual("angel\n")

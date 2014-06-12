@@ -5,7 +5,7 @@ organization := "com.github.rubyu"
 
 name := "ad-edit"
 
-version := "0.0.0"
+version := "0.0.1"
 
 scalaVersion := "2.10.4"
 

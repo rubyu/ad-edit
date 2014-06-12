@@ -174,9 +174,6 @@ object Main {
         case "help" | "-h" | "-help" | "--help" =>
           printUsage(System.out)
         case command @ ("insert-field" | "set-field" | "drop-field") =>
-          if (System.in.available() == 0) {
-            throw new ManagedFailure("No input data; please input data from STDIN")
-          }
           val f = command match {
             case "insert-field" | "set-field" =>
               val option = new InsertOrSetFieldOption

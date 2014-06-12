@@ -1,5 +1,6 @@
 /project/project/
 /project/target/
 /target/
+/gnupack*
 /.idea/
 /.idea_modules/
