@@ -27,10 +27,10 @@ class TsvUpdaterTest extends SpecificationWithJUnit {
   }
 
   "TsvUpdater.update" should {
-    "print error when invalid string found" in new scope {
+    "ignore invalid string" in new scope {
       updater.update(input(List(
         "\"").mkString("\r\n")), output) { arr => arr }
-      stderr.toString("utf-8") mustEqual("invalid string found: \"; at line 1" + System.lineSeparator)
+      stderr.toString("utf-8") mustEqual("")
     }
 
     "output a character as is" in new scope {
@@ -142,54 +142,6 @@ class TsvUpdaterTest extends SpecificationWithJUnit {
         "1\t1",
         "1\t1\t1\t1",
         "") mkString("\r\n"))
-    }
-
-    "ignore comment" in new scope {
-      updater.update(input(List(
-        "#").mkString("\r\n")), output) { arr => arr }
-      outputStr mustEqual(List(
-        "").mkString("\r\n"))
-    }
-
-    "ignore succesive comments" in new scope {
-      updater.update(input(List(
-        "#",
-        "#").mkString("\r\n")), output) { arr => arr }
-      outputStr mustEqual(List(
-        "").mkString("\r\n"))
-    }
-
-    "ignore not succesive comments" in new scope {
-      updater.update(input(List(
-        "#",
-        "",
-        "#").mkString("\r\n")), output) { arr => arr }
-      outputStr mustEqual(List(
-        "").mkString("\r\n"))
-    }
-
-    "ignore tags expression" in new scope {
-      updater.update(input(List(
-        "tags: a b").mkString("\r\n")), output) { arr => arr }
-      outputStr mustEqual(List(
-        "").mkString("\r\n"))
-    }
-
-    "ignore tags expression after comment" in new scope {
-      updater.update(input(List(
-        "#",
-        "tags: a b").mkString("\r\n")), output) { arr => arr }
-      outputStr mustEqual(List(
-        "").mkString("\r\n"))
-    }
-
-    "parse row appears after tags expression" in new scope {
-      updater.update(input(List(
-        "tags: a b",
-        "a").mkString("\r\n")), output) { arr => arr }
-      outputStr mustEqual(List(
-        "a",
-        "").mkString("\r\n"))
     }
   }
 }

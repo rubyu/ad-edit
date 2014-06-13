@@ -3,8 +3,8 @@ package com.github.rubyu.adedit
 
 import java.io._
 import java.nio.charset.StandardCharsets
-import com.github.rubyu.adedit.AnkiTsvParser.result._
-
+import com.orangesignal.csv.{CsvWriter, CsvReader, QuotePolicy, CsvConfig}
+import scala.collection.JavaConversions._
 
 /**
  * タブ切りCSVファイルに変更を加えるクラス。
@@ -17,16 +17,26 @@ import com.github.rubyu.adedit.AnkiTsvParser.result._
 
 class TsvUpdater {
 
+  val readCfg = new CsvConfig('\t', '\"', '\"')
+  readCfg.setVariableColumns(true)
+
+  val writeCfg = new CsvConfig('\t', '\"', '\"')
+  writeCfg.setQuotePolicy(QuotePolicy.MINIMAL)
+  writeCfg.setVariableColumns(true)
+
   def update(input: InputStream, output: OutputStream)(f: List[String] => List[String]) {
-    val reader = new AnkiTsvReader(new InputStreamReader(input, StandardCharsets.UTF_8))
-    val writer = new AnkiTsvWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8))
-    reader foreach {
-      case elem: Row => writer.write(f(elem.value))
-      case elem: Comment =>
-      case elem: Tags =>
-      case elem: InvalidString =>
-        System.err.println(s"invalid string found: ${elem.value}; at line ${reader.lastSuccess.getOrElse(-1) + 2}")
-        System.err.flush()
+    val reader = new CsvReader(new InputStreamReader(input, StandardCharsets.UTF_8), readCfg)
+    val writer = new CsvWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8), writeCfg)
+    try {
+      Iterator.continually(reader.readValues()) takeWhile(_ != null) foreach {
+        case row if row.size == 1 && row(0).isEmpty =>
+        case row =>
+          writer.writeValues(f(row.toList))
+          writer.flush()
+      }
+    } finally {
+      reader.close()
+      writer.close()
     }
   }
 }
