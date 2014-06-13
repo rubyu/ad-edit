@@ -30,7 +30,7 @@ class TsvUpdaterTest extends SpecificationWithJUnit {
     "print error when invalid string found" in new scope {
       updater.update(input(List(
         "\"").mkString("\r\n")), output) { arr => arr }
-      stderr.toString("utf-8") mustEqual("invalid string('\"') found; at line 1" + System.lineSeparator)
+      stderr.toString("utf-8") mustEqual("invalid string found: \"; at line 1" + System.lineSeparator)
     }
 
     "output a character as is" in new scope {

@@ -25,7 +25,7 @@ class TsvUpdater {
       case elem: Comment =>
       case elem: Tags =>
       case elem: InvalidString =>
-        System.err.println(s"invalid string('${elem.value}') found; at line ${reader.lastSuccess.getOrElse(-1) + 2}")
+        System.err.println(s"invalid string found: ${elem.value}; at line ${reader.lastSuccess.getOrElse(-1) + 2}")
         System.err.flush()
     }
   }
