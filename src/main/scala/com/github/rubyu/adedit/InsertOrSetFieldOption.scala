@@ -1,10 +1,9 @@
 
-package com.github.rubyu.adedit
+package com.github.rubyu.wok
 
 import org.kohsuke.args4j.{Option => Opt, Argument => Arg}
 import org.kohsuke.args4j.CmdLineParser
 import scala.collection.JavaConversions._
-import annotation.tailrec
 
 
 class InsertOrSetFieldOption {
@@ -12,93 +11,46 @@ class InsertOrSetFieldOption {
    * 対象の列番号。
    */
   @Arg(index = 0)
-  private var _field: String = _
+  private var _column: String = _
 
-  def field: Int = {
-    Option(_field) match {
+  def column: Int = {
+    Option(_column) match {
       case Some(x) => x.toInt match {
-        case n if n < 0 => throw new ManagedFailure("'field' must be greater than or equal to zero")
+        case n if n < 0 => throw new ManagedFailure("'column' must be greater than or equal to zero")
         case n => n
       }
-      case None => throw new ManagedFailure("'field' missing")
+      case None => throw new ManagedFailure("'column' missing")
     }
   }
 
-  /**
-   * `--exec`以降に指定される最初のコマンドに標準入力として与えられる列の列番号。
-   */
-  @Opt(name = "--source")
-  private var _source: String = _
+  @Arg(index = 1)
+  private var _script: String = _
 
-  def source: Option[Int] = {
-    Option(_source) match {
-      case Some(x) => x.toInt match {
-        case n if n < 0 => None
-        case n => Some(n)
-      }
-      case None => None
+  def script: String = {
+    Option(_script) match {
+      case None => throw new ManagedFailure("'script' missing")
+      case Some(x) => x
     }
   }
 
-  /**
-   * コマンドの実行結果のフォーマット。
-   */
-  @Opt(name = "--format")
-  private var _format: String = _
+  @Arg(index = 2)
+  private var _args: Array[String] = _
 
-  def format: String = {
-    Option(_format) match {
-      case Some(x) => x.toLowerCase match {
-        case s if s.matches("^(jpe?g|png|tif?f|gif|svg)$") => s
-        case s if s.matches("^(wav|mp3|ogg|flac|mp4|swf|mov|mpe?g|mkv|m4a)$") => s
-        case s if s.matches("^(html?|te?xt)$") => s
-        case s => throw new ManagedFailure(s"'${s}' is not a supported format")
-      }
-      case None => throw new ManagedFailure("'--format' missing")
+  def args: List[String] = {
+    Option(_args) match {
+      case None => List[String]()
+      case Some(x) => x.toList
     }
   }
 
-  /**
-   * `--exec`以降のすべてのパラメータ。
-   */
-  private var _exec = List[String]()
-
-  def commands: List[List[String]] = {
-    //List[String]をパイプ文字(|)で分割して、List[List[String]]に変換する。
-    def split(commands: List[String]) = {
-      @tailrec
-      def split(list: List[List[String]], commands: List[String]): List[List[String]] = {
-        commands.indexOf("|") match {
-          case -1 if commands.isEmpty => throw new ManagedFailure("'command' missing in '--exec'")
-          case -1 => list :+ commands
-          case 0 => throw new ManagedFailure("'command' in '--exec' must not start with '|'")
-          case n => split(list :+ commands.take(n), commands.drop(n+1))
-        }
-      }
-      split(List[List[String]](), commands)
-    }
-    split(_exec)
-  }
-
-  /**
-   * 引数を処理して、フィールドに値を設定する。
-   * args4jの仕様で、固定引数を柔軟に処理できないため、手動で`--exec`以降をパースして処理している。
-   */
   def parseArgument(args: List[String]) = {
-    val (before, after) = args indexOf "--exec" match {
-      case -1 => (args, List[String]())
-      case n => (args take n, args drop n+1)
-    }
-    new CmdLineParser(this).parseArgument(before)
-    _exec = after
+    new CmdLineParser(this).parseArgument(args)
     this
   }
 
   def validate() = {
-    field
-    source
-    format
-    commands
+    column
+    script
     this
   }
 }

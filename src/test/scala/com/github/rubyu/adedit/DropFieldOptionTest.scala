@@ -1,5 +1,5 @@
 
-package com.github.rubyu.adedit
+package com.github.rubyu.wok
 
 import org.specs2.mutable._
 import org.specs2.specification.Scope
@@ -12,18 +12,18 @@ class DropFieldOptionTest extends SpecificationWithJUnit {
     val option = new DropFieldOption
   }
 
-  "DropFieldOption.field" should {
-    "throw an CmdLineException when field is -1" in new scope {
+  "DropFieldOption.column" should {
+    "throw an CmdLineException when column is -1" in new scope {
       option.parseArgument(List[String]("-1")) must throwA[CmdLineException]
     }
 
     "throw a ManagedFailure when list is empty" in new scope {
-      option.parseArgument(List[String]()).field must throwA(new ManagedFailure("'field' missing"))
+      option.parseArgument(List[String]()).column must throwA(new ManagedFailure("'column' missing"))
     }
 
     "return Int" in new scope {
-      option.parseArgument(List[String]("0")).field mustEqual 0
-      option.parseArgument(List[String]("1")).field mustEqual 1
+      option.parseArgument(List[String]("0")).column mustEqual 0
+      option.parseArgument(List[String]("1")).column mustEqual 1
     }
   }
 }

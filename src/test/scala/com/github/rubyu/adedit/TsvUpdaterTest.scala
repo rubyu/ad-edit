@@ -1,5 +1,5 @@
 
-package com.github.rubyu.adedit
+package com.github.rubyu.wok
 
 import org.specs2.mutable._
 import org.specs2.specification.Scope

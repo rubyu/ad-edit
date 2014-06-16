@@ -1,10 +1,11 @@
-
-package com.github.rubyu.adedit
+package com.github.rubyu.wok
 
 import org.fusesource.scalate.{Binding, TemplateEngine}
 
 
 object Template {
+
+  //todo col(n) getOr ""
 
   class Field {
     var row: List[String] = _
@@ -16,8 +17,7 @@ object Template {
   }
 }
 
-class Template(commands: List[List[String]]) {
-
+class Template(script: String) {
   private val engine = new TemplateEngine
   engine.escapeMarkup = false //avoid escape for markup characters
 
@@ -25,20 +25,20 @@ class Template(commands: List[List[String]]) {
   private val media = new Template.Media
   private val context = Map("field" -> field, "media" -> media)
 
-  private val compiledCommands = compileCommands(commands)
+  private val compiled = compile(script)
 
-  private def compileCommands(commands: List[List[String]]) = {
+  private def compile(script: String) = {
     val bindings = List(
       Binding("field", "com.github.rubyu.adedit.Template.Field"),
       Binding("media", "com.github.rubyu.adedit.Template.Media"))
 
-    commands map { _ map { engine.compileSsp(_, bindings) } }
+    engine.compileSsp("<% import com.github.rubyu.adedit.Proc %>" + script, bindings)
   }
 
-  def layout(row: List[String], mediaDir: String): List[List[String]] = {
+  def layout(row: List[String], mediaDir: String): String = {
     field.row = row
     media.dir = mediaDir
-    compiledCommands map { _ map { t => engine.layout(t.source, context) } }
+    engine.layout(compiled.source, context)
   }
 }
 

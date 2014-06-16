@@ -1,5 +1,5 @@
 
-package com.github.rubyu.adedit
+package com.github.rubyu.wok
 
 import org.kohsuke.args4j.{Option => Opt, Argument => Arg}
 import org.kohsuke.args4j.CmdLineParser
@@ -11,29 +11,25 @@ class DropFieldOption {
    * 対象の列番号。
    */
   @Arg(index = 0)
-  private var _field: String = _
+  private var _column: String = _
 
-  def field: Int = {
-    Option(_field) match {
+  def column: Int = {
+    Option(_column) match {
       case Some(x) => x.toInt match {
-        case n if n < 0 => throw new ManagedFailure("'field' must be greater than or equal to zero")
+        case n if n < 0 => throw new ManagedFailure("'column' must be greater than or equal to zero")
         case n => n
       }
-      case None => throw new ManagedFailure("'field' missing")
+      case None => throw new ManagedFailure("'column' missing")
     }
   }
 
-  /**
-   * 引数を処理して、フィールドに値を設定する。
-   * @param args
-   */
   def parseArgument(args: List[String]) = {
     new CmdLineParser(this).parseArgument(args)
     this
   }
 
   def validate() = {
-    field
+    column
     this
   }
 }

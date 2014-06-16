@@ -1,5 +1,5 @@
 
-package com.github.rubyu.adedit
+package com.github.rubyu.wok
 
 import java.io._
 import java.nio.charset.StandardCharsets
