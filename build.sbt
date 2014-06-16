@@ -3,9 +3,9 @@ import AssemblyKeys._
 
 organization := "com.github.rubyu"
 
-name := "ad-edit"
+name := "wok"
 
-version := "0.0.2"
+version := "0.0.3"
 
 scalaVersion := "2.10.4"
 

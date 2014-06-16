@@ -50,10 +50,10 @@ class MainTest extends SpecificationWithJUnit {
         "").mkString(System.lineSeparator)
     }
 
-    "do insert-field" in new scope {
+    "do insert with constant" in new scope {
       System.setIn(new ByteArrayInputStream("a".getBytes(StandardCharsets.UTF_8)))
       Main.main(Array[String](
-        "insert-field", "0", "b")
+        "insert", "0", "b")
       ) must throwAn(new AttemptToExitException(0))
       System.err.flush()
       stderr.toString("utf-8") mustEqual ""
@@ -61,19 +61,79 @@ class MainTest extends SpecificationWithJUnit {
       stdout.toString("utf-8") mustEqual "b\ta\r\n"
     }
 
-    "do set-field" in new scope {
+    "do insert with media.dir" in new scope {
       System.setIn(new ByteArrayInputStream("a".getBytes(StandardCharsets.UTF_8)))
       Main.main(Array[String](
-        "set-field", "0", "b")
+        "insert", "0", "${media.dir}")
+      ) must throwAn(new AttemptToExitException(0))
+      System.err.flush()
+      stderr.toString("utf-8") mustEqual ""
+      System.out.flush()
+      stdout.toString("utf-8") mustEqual Main.mediaDir.getAbsolutePath + "\ta\r\n"
+    }
+
+    "do insert with argument" in new scope {
+      System.setIn(new ByteArrayInputStream("a".getBytes(StandardCharsets.UTF_8)))
+      Main.main(Array[String](
+        "insert", "0", "${arg(0)}", "b")
+      ) must throwAn(new AttemptToExitException(0))
+      System.err.flush()
+      stderr.toString("utf-8") mustEqual ""
+      System.out.flush()
+      stdout.toString("utf-8") mustEqual "b\ta\r\n"
+    }
+
+    "do insert with row" in new scope {
+      System.setIn(new ByteArrayInputStream("a".getBytes(StandardCharsets.UTF_8)))
+      Main.main(Array[String](
+        "insert", "0", "${row(0)}")
+      ) must throwAn(new AttemptToExitException(0))
+      System.err.flush()
+      stderr.toString("utf-8") mustEqual ""
+      System.out.flush()
+      stdout.toString("utf-8") mustEqual "a\ta\r\n"
+    }
+
+    "do set-field with contant" in new scope {
+      System.setIn(new ByteArrayInputStream("a".getBytes(StandardCharsets.UTF_8)))
+      Main.main(Array[String](
+        "set", "0", "b")
       ) must throwAn(new AttemptToExitException(0))
       System.out.flush()
       stdout.toString("utf-8") mustEqual "b\r\n"
     }
 
-    "do drop-field" in new scope {
+    "do set-field with media.dir" in new scope {
+      System.setIn(new ByteArrayInputStream("a".getBytes(StandardCharsets.UTF_8)))
+      Main.main(Array[String](
+        "set", "0", "${media.dir}")
+      ) must throwAn(new AttemptToExitException(0))
+      System.out.flush()
+      stdout.toString("utf-8") mustEqual Main.mediaDir.getAbsolutePath + "\r\n"
+    }
+
+    "do set-field with argument" in new scope {
+      System.setIn(new ByteArrayInputStream("a".getBytes(StandardCharsets.UTF_8)))
+      Main.main(Array[String](
+        "set", "0", "${arg(0)}", "b")
+      ) must throwAn(new AttemptToExitException(0))
+      System.out.flush()
+      stdout.toString("utf-8") mustEqual "b\r\n"
+    }
+
+    "do set-field with row" in new scope {
+      System.setIn(new ByteArrayInputStream("a".getBytes(StandardCharsets.UTF_8)))
+      Main.main(Array[String](
+        "set", "0", "${row(0)}")
+      ) must throwAn(new AttemptToExitException(0))
+      System.out.flush()
+      stdout.toString("utf-8") mustEqual "a\r\n"
+    }
+
+    "do drop" in new scope {
       System.setIn(new ByteArrayInputStream("a\tb".getBytes(StandardCharsets.UTF_8)))
       Main.main(Array[String](
-        "drop-field", "0")) must throwAn(new AttemptToExitException(0))
+        "drop", "0")) must throwAn(new AttemptToExitException(0))
       System.out.flush()
       stdout.toString("utf-8") mustEqual "b\r\n"
     }
@@ -81,7 +141,7 @@ class MainTest extends SpecificationWithJUnit {
     "print help" in new scope {
       Main.main(Array[String](
         "help")) must throwAn(new AttemptToExitException(0))
-      stdout.toString("utf-8") mustEqual "See https://github.com/rubyu/ad-edit" + System.lineSeparator
+      stdout.toString("utf-8") mustEqual "See https://github.com/rubyu/wok" + System.lineSeparator
     }
   }
 

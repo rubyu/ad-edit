@@ -47,8 +47,8 @@ object Main {
     buffer.toList
   }
 
-  def executeScript(template: Template, mediaDir: String): List[String] => String = { row =>
-    template.layout(row, mediaDir)
+  def executeScript(template: Template): List[String] => String = { row =>
+    template.layout(row)
   }
 
   def mediaDir = {
@@ -70,10 +70,10 @@ object Main {
               val option = new InsertOrSetFieldOption
               option.parseArgument(args.tail.toList)
               option.validate()
-              val template = new Template(option.script)
+              val template = new Template(option.script, option.args, mediaDir.getAbsolutePath)
               command match {
-                case "insert" => insertField(option.column, executeScript(template, mediaDir.getAbsolutePath))
-                case "set" => setField(option.column, executeScript(template, mediaDir.getAbsolutePath))
+                case "insert" => insertField(option.column, executeScript(template))
+                case "set" => setField(option.column, executeScript(template))
               }
             case "drop" =>
               val option = new DropFieldOption
@@ -100,7 +100,7 @@ object Main {
   }
 
   def printUsage(out: PrintStream) {
-    out.println("See https://github.com/rubyu/ad-edit")
+    out.println("See https://github.com/rubyu/wok")
     out.flush()
   }
 }
