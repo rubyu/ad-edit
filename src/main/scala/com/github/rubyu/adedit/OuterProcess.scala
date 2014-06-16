@@ -41,13 +41,13 @@ object OuterProcess {
       ))
       try {
         in.get
-        p.exitValue() match {
-          case 0 =>
-          case _ => throw new RuntimeException("Process returns non zero return code")
-        }
         err.get match {
           case bytes if bytes.size > 0 => System.err.println(new String(bytes, "utf-8"))
           case _ =>
+        }
+        p.exitValue() match {
+          case 0 =>
+          case exitCode => throw new RuntimeException(s"Process returns non zero exit code(${exitCode})")
         }
         out.get
       } finally {
