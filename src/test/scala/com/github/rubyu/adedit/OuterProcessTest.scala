@@ -12,6 +12,7 @@ class OuterProcessTest extends SpecificationWithJUnit {
   sequential
 
   "OuterProcess.execute" should {
+
     "call windows programs" in {
       val result = OuterProcess.execute(List(
         List("cmd", "/c", "echo", "a")
