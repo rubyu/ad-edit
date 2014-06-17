@@ -14,7 +14,7 @@ libraryDependencies ++= Seq(
     "org.slf4j" % "slf4j-simple" % "1.6.4",
     "args4j" % "args4j" % "2.0.26",
     "com.orangesignal" % "orangesignal-csv" % "2.2.0",
-    "org.fusesource.scalate" % "scalate-core_2.10" % "1.6.1",
+    "org.scala-lang" % "scala-compiler" % "2.10.4",
     "org.specs2" % "specs2_2.10" % "2.3.12" % "test",
     "junit" % "junit" % "4.7" % "test"
   )

@@ -53,7 +53,7 @@ class MainTest extends SpecificationWithJUnit {
     "do insert with constant" in new scope {
       System.setIn(new ByteArrayInputStream("a".getBytes(StandardCharsets.UTF_8)))
       Main.main(Array[String](
-        "insert", "0", "b")
+        "insert", "0", "\"b\"")
       ) must throwAn(new AttemptToExitException(0))
       System.err.flush()
       stderr.toString("utf-8") mustEqual ""
@@ -64,7 +64,7 @@ class MainTest extends SpecificationWithJUnit {
     "do insert with media.dir" in new scope {
       System.setIn(new ByteArrayInputStream("a".getBytes(StandardCharsets.UTF_8)))
       Main.main(Array[String](
-        "insert", "0", "${media.dir}")
+        "insert", "0", "media.dir")
       ) must throwAn(new AttemptToExitException(0))
       System.err.flush()
       stderr.toString("utf-8") mustEqual ""
@@ -75,7 +75,7 @@ class MainTest extends SpecificationWithJUnit {
     "do insert with argument" in new scope {
       System.setIn(new ByteArrayInputStream("a".getBytes(StandardCharsets.UTF_8)))
       Main.main(Array[String](
-        "insert", "0", "${arg(0)}", "b")
+        "insert", "0", "arg(0)", "b")
       ) must throwAn(new AttemptToExitException(0))
       System.err.flush()
       stderr.toString("utf-8") mustEqual ""
@@ -86,7 +86,7 @@ class MainTest extends SpecificationWithJUnit {
     "do insert with row" in new scope {
       System.setIn(new ByteArrayInputStream("a".getBytes(StandardCharsets.UTF_8)))
       Main.main(Array[String](
-        "insert", "0", "${row(0)}")
+        "insert", "0", "row(0)")
       ) must throwAn(new AttemptToExitException(0))
       System.err.flush()
       stderr.toString("utf-8") mustEqual ""
@@ -97,7 +97,7 @@ class MainTest extends SpecificationWithJUnit {
     "do set-field with contant" in new scope {
       System.setIn(new ByteArrayInputStream("a".getBytes(StandardCharsets.UTF_8)))
       Main.main(Array[String](
-        "set", "0", "b")
+        "set", "0", "\"b\"")
       ) must throwAn(new AttemptToExitException(0))
       System.out.flush()
       stdout.toString("utf-8") mustEqual "b\r\n"
@@ -106,7 +106,7 @@ class MainTest extends SpecificationWithJUnit {
     "do set-field with media.dir" in new scope {
       System.setIn(new ByteArrayInputStream("a".getBytes(StandardCharsets.UTF_8)))
       Main.main(Array[String](
-        "set", "0", "${media.dir}")
+        "set", "0", "media.dir")
       ) must throwAn(new AttemptToExitException(0))
       System.out.flush()
       stdout.toString("utf-8") mustEqual Main.mediaDir.getAbsolutePath + "\r\n"
@@ -115,7 +115,7 @@ class MainTest extends SpecificationWithJUnit {
     "do set-field with argument" in new scope {
       System.setIn(new ByteArrayInputStream("a".getBytes(StandardCharsets.UTF_8)))
       Main.main(Array[String](
-        "set", "0", "${arg(0)}", "b")
+        "set", "0", "arg(0)", "b")
       ) must throwAn(new AttemptToExitException(0))
       System.out.flush()
       stdout.toString("utf-8") mustEqual "b\r\n"
@@ -124,7 +124,7 @@ class MainTest extends SpecificationWithJUnit {
     "do set-field with row" in new scope {
       System.setIn(new ByteArrayInputStream("a".getBytes(StandardCharsets.UTF_8)))
       Main.main(Array[String](
-        "set", "0", "${row(0)}")
+        "set", "0", "row(0)")
       ) must throwAn(new AttemptToExitException(0))
       System.out.flush()
       stdout.toString("utf-8") mustEqual "a\r\n"
