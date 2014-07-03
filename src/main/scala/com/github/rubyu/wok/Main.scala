@@ -42,9 +42,7 @@ object Main {
    * @return
    */
   def setField(field: Int, f: List[String] => String): List[String] => List[String] = { row =>
-    val buffer = row.padTo(field+1, "").toBuffer
-    buffer.update(field, f(row))
-    buffer.toList
+    row.padTo(field+1, "").updated(field, f(row))
   }
 
   def executeScript(template: Template): List[String] => String = { row =>
